@@ -1,0 +1,835 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1">&lt;title&gt;Boston Logan — Flight Board&lt;/title&gt;</p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Bebas+Neue&amp;family=IBM+Plex+Mono:wght@400;700&amp;display=swap');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--bg: #0a0a0a;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--amber: #ffb800;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--amber-dim: #7a5800;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--green: #00e676;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--green-dim: #005c2e;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--blue: #40c4ff;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--blue-dim: #1a4a66;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--red: #ff3d3d;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--text: #e8e0d0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--muted: #4a4540;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--row-bg: #0d0d0d;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--row-alt: #121212;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--header-bg: #0c0d0f;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>* { margin: 0; padding: 0; box-sizing: border-box; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: var(--bg);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>color: var(--text);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'IBM Plex Mono', monospace;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>min-height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>overflow-x: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>body::before {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>content: '';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: fixed; inset: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>z-index: 9000;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* ─── HEADER ─── */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.header {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: var(--header-bg);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>border-bottom: 2px solid #3a3d42;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>padding: 12px 28px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: flex; align-items: center; justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.header-left { display: flex; align-items: center; gap: 18px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.board-title {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'Bebas Neue', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 2.6rem; color: #e8eaed;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>letter-spacing: 6px; line-height: 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>text-shadow: 0 0 28px rgba(220,225,235,0.2);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.airport-name {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 0.62rem; color: #6b7280;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>letter-spacing: 2px; text-transform: uppercase;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>border: 1px solid #3a3d42; padding: 4px 12px; line-height: 1.6;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.airport-name strong { display: block; font-size: 0.8rem; color: #c8cdd6; letter-spacing: 4px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.clock {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'Share Tech Mono', monospace;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 1.55rem; color: #d0d4dc; letter-spacing: 3px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.status-bar { display: flex; align-items: center; gap: 10px; font-size: 0.68rem; color: var(--muted); letter-spacing: 1px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); display: inline-block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.status-dot.live<span class="Apple-converted-space">  </span>{ background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.status-dot.error { background: var(--red); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* ─── BOARDS ─── */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.boards { display: flex; flex-direction: column; flex: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.board { border-right: none; border-bottom: 1px solid #1a1a1a; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.board:last-child { border-bottom: none; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.board-header {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: flex; align-items: center; justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>padding: 11px 18px; border-bottom: 1px solid #1e1e1e;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.board-label {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'Bebas Neue', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 2rem; letter-spacing: 6px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: flex; align-items: center; gap: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .board-label { color: var(--amber); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .board-label { color: var(--blue); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.board-count { font-size: 0.65rem; color: var(--muted); letter-spacing: 2px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* ─── COLUMNS ─── */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.col-headers {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>grid-template-columns: 64px 96px 1fr 220px 90px 90px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>padding: 6px 20px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 0.65rem; color: var(--muted); letter-spacing: 2px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>border-bottom: 1px solid #161616; text-transform: uppercase;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.flight-list { min-height: 160px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.flight-row {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>grid-template-columns: 64px 96px 1fr 220px 90px 90px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>padding: 0 20px; height: 56px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>border-bottom: 1px solid #141414;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation: flipIn 0.35s ease-out;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.flight-row:nth-child(even) { background: var(--row-alt); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.flight-row:nth-child(odd)<span class="Apple-converted-space">  </span>{ background: var(--row-bg); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.flight-row:hover { background: #161400; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.flight-row.imm-dep { background: #120800 !important; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.flight-row.imm-arr { background: #00090f !important; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes flipIn { from{opacity:0;transform:rotateX(-80deg) translateY(-6px)} to{opacity:1;transform:none} }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.cell { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Departures — amber accents, white for airline */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .cell-time <span class="Apple-converted-space">        </span>{ color: var(--text); font-size: 1.08rem; font-weight: 700; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .cell-flight <span class="Apple-converted-space">      </span>{ color: var(--amber); font-weight: 700; font-size: 1.05rem; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .cell-dest-city<span class="Apple-converted-space">    </span>{ color: var(--text); font-size: 0.97rem; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .cell-dest-iata<span class="Apple-converted-space">    </span>{ color: var(--amber); font-size: 0.8rem; display: block; margin-top: 1px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .cell-airline-name { color: var(--text); font-size: 0.97rem; display: block; letter-spacing: 1px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .cell-acft-type<span class="Apple-converted-space">    </span>{ color: var(--amber); font-size: 0.88rem; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.dep .cell-acft-sub <span class="Apple-converted-space">    </span>{ color: var(--amber-dim); font-size: 0.77rem; display: block; margin-top: 1px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Arrivals — white for time/city/airline; blue for flight number &amp; accents */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .cell-time <span class="Apple-converted-space">        </span>{ color: var(--text); font-size: 1.08rem; font-weight: 700; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .cell-flight <span class="Apple-converted-space">      </span>{ color: var(--blue); font-weight: 700; font-size: 1.05rem; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .cell-dest-city<span class="Apple-converted-space">    </span>{ color: var(--text); font-size: 0.97rem; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .cell-dest-iata<span class="Apple-converted-space">    </span>{ color: var(--blue); font-size: 0.8rem; display: block; margin-top: 1px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .cell-airline-name { color: var(--text); font-size: 0.97rem; display: block; letter-spacing: 1px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .cell-acft-type<span class="Apple-converted-space">    </span>{ color: var(--blue); font-size: 0.88rem; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.arr .cell-acft-sub <span class="Apple-converted-space">    </span>{ color: #235060; font-size: 0.77rem; display: block; margin-top: 1px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Pills */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.status-pill { display: inline-block; font-size: 0.57rem; padding: 2px 7px; letter-spacing: 1px; border-radius: 2px; text-transform: uppercase; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.s-approach { background:#07121c; color:var(--blue);<span class="Apple-converted-space">  </span>border:1px solid var(--blue-dim); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.s-climb<span class="Apple-converted-space">    </span>{ background:#1a1200; color:var(--amber); border:1px solid var(--amber-dim); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.s-cruise <span class="Apple-converted-space">  </span>{ background:#161616; color:#888; <span class="Apple-converted-space">        </span>border:1px solid #2a2a2a; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.s-ground <span class="Apple-converted-space">  </span>{ background:#160808; color:#777; <span class="Apple-converted-space">        </span>border:1px solid #331010; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.s-enroute<span class="Apple-converted-space">  </span>{ background:#0a1a0a; color:var(--green); border:1px solid var(--green-dim); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.s-imm-dep<span class="Apple-converted-space">  </span>{ background:#2a0800; color:#ff8060;<span class="Apple-converted-space">      </span>border:1px solid #ff4020; animation:blink-d 0.65s infinite; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.s-imm-arr<span class="Apple-converted-space">  </span>{ background:#001828; color:#60d0ff;<span class="Apple-converted-space">      </span>border:1px solid var(--blue); animation:blink-a 0.65s infinite; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes blink-d { 0%,100%{opacity:1} 50%{opacity:0.35} }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes blink-a { 0%,100%{opacity:1} 50%{opacity:0.3}<span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Empty */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.empty-state { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);gap:12px;font-size:0.72rem;letter-spacing:2px;text-align:center; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.empty-icon<span class="Apple-converted-space">  </span>{ font-size:2.4rem; opacity:0.25; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Bottom bar */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.bottom-bar { background:#060606;border-top:1px solid #1a1a1a;padding:6px 20px;display:flex;align-items:center;gap:24px;font-size:0.61rem;color:var(--muted);letter-spacing:1px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.bottom-bar .coord { color:var(--amber-dim);font-family:'Share Tech Mono',monospace; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.refresh-timer { margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.61rem;color:var(--muted); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Ticker */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.ticker { background:#050505;border-top:1px solid #161616;padding:5px 0;overflow:hidden;white-space:nowrap; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.ticker-inner { display:inline-block;animation:scroll 45s linear infinite;font-size:0.63rem;color:var(--amber-dim);letter-spacing:2px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes scroll { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Loading */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-overlay {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position:fixed; inset:0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: #0c0d0f;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display:flex; align-items:center; justify-content:center;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>z-index:200; flex-direction:column; gap:28px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>transition:opacity 0.6s;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-overlay.hidden { opacity:0; pointer-events:none; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-title {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family:'Bebas Neue',sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size:3rem; color:#e8eaed;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>letter-spacing:10px; line-height:1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>text-shadow: 0 0 40px rgba(220,225,235,0.15);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-sub { font-size:0.62rem; color:#4a4d54; letter-spacing:3px; text-transform:uppercase; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Runway track */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-runway {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>width: 320px; height: 48px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: flex; align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Dashed centre line */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-runway::before {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>content:'';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>height:1px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: repeating-linear-gradient(90deg, #2a2d32 0px, #2a2d32 18px, transparent 18px, transparent 30px);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Plane SVG flying along the track */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-plane {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 1.8rem;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation: fly-across 2.2s cubic-bezier(0.3,0,0.7,1) forwards;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>filter: drop-shadow(0 0 8px rgba(200,210,220,0.5));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>line-height:1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>z-index: 2;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes fly-across {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>0% <span class="Apple-converted-space">  </span>{ left: -10%;<span class="Apple-converted-space">  </span>opacity:0; transform: translateY(2px) rotate(-8deg) scale(0.75); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>8% <span class="Apple-converted-space">  </span>{ opacity:1; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>50%<span class="Apple-converted-space">  </span>{ transform: translateY(-14px) rotate(-8deg) scale(1); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>90%<span class="Apple-converted-space">  </span>{ opacity:1; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>100% { left: 108%; opacity:0; transform: translateY(-26px) rotate(-8deg) scale(1.05); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* Trail: three streaks that grow behind the plane */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-trail {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>top: 50%; left: 0; right: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>transform: translateY(-50%);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>z-index: 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-trail::before,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-trail::after,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-trail span {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>content: '';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>height: 1px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>border-radius: 1px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation: streak 2.2s cubic-bezier(0.3,0,0.7,1) forwards;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-trail::before {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>top: 6px; left: 0; right: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: linear-gradient(90deg, transparent 0%, rgba(190,200,215,0.55) 60%, transparent 100%);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation-delay: 0.05s;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-trail::after {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>top: 10px; left: 0; right: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: linear-gradient(90deg, transparent 0%, rgba(190,200,215,0.35) 55%, transparent 100%);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation-delay: 0.1s;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.loading-trail span {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>top: 14px; left: 0; right: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: linear-gradient(90deg, transparent 0%, rgba(190,200,215,0.18) 50%, transparent 100%);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation-delay: 0.15s;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes streak {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>0% <span class="Apple-converted-space">  </span>{ clip-path: inset(0 100% 0 0); opacity: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>10%<span class="Apple-converted-space">  </span>{ opacity: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>50%<span class="Apple-converted-space">  </span>{ clip-path: inset(0 20% 0 0); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>85%<span class="Apple-converted-space">  </span>{ opacity: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>100% { clip-path: inset(0 0% 0 0); opacity: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* ─── IMMINENT FULLSCREEN OVERLAY ─── */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-overlay {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: fixed; inset: 0; z-index: 500;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>display: flex; align-items: center; justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>flex-direction: column; gap: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>opacity: 0; pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>transition: opacity 0.4s;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-overlay.show { opacity: 1; pointer-events: all; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-overlay.is-dep {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: radial-gradient(ellipse at 50% 55%, #200d00 0%, #0e0600 45%, #060300 100%);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-overlay.is-arr {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>background: radial-gradient(ellipse at 50% 55%, #001828 0%, #000a12 45%, #000608 100%);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* big bg plane watermark */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-watermark {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: absolute; font-size: 24vw; opacity: 0.05;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation: imm-float 5s ease-in-out infinite;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pointer-events: none; user-select: none;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>transition: transform 0.5s;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes imm-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>/* pulse rings */</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-ring {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>position: absolute; border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>width: 280px; height: 280px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation: ring-out 2.2s ease-out infinite;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-dep .imm-ring { border: 1px solid rgba(255,184,0,0.25); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-arr .imm-ring { border: 1px solid rgba(64,196,255,0.2); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-ring:nth-child(2) { animation-delay: 0.7s; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-ring:nth-child(3) { animation-delay: 1.4s; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes ring-out { 0%{transform:scale(0.4);opacity:1} 100%{transform:scale(3.5);opacity:0} }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-badge {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'Bebas Neue', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 0.9rem; letter-spacing: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animation: badge-blink 1s infinite;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-dep .imm-badge { color: var(--amber); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-arr .imm-badge { color: var(--blue); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@keyframes badge-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-callsign {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'Bebas Neue', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: clamp(3.5rem, 12vw, 8rem);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>letter-spacing: 14px; line-height: 1; text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-dep .imm-callsign { color: var(--amber); text-shadow: 0 0 80px rgba(255,184,0,0.4); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-arr .imm-callsign { color: var(--blue);<span class="Apple-converted-space">  </span>text-shadow: 0 0 80px rgba(64,196,255,0.4); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-dest {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'Bebas Neue', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: clamp(1.4rem, 4vw, 2.8rem);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>letter-spacing: 8px; text-align: center; opacity: 0.88;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-dep .imm-dest { color: #d4a030; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-arr .imm-dest { color: #60c8ff; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-meta {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'Share Tech Mono', monospace;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-size: 0.82rem; letter-spacing: 2px; color: var(--muted);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>text-align: center; line-height: 2.1;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-dep .imm-meta em { color: var(--amber); font-style: normal; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.is-arr .imm-meta em { color: var(--blue);<span class="Apple-converted-space">  </span>font-style: normal; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-dismiss {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 3px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>color: var(--muted); border: 1px solid #252525; background: transparent;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>padding: 8px 24px; cursor: pointer; text-transform: uppercase; margin-top: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-dismiss:hover { color: var(--text); border-color: #555; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; }</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- LOADING --&gt;</p>
+<p class="p1">&lt;div class="loading-overlay" id="loading"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="loading-title"&gt;BOSTON LOGAN&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="loading-runway"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="loading-trail"&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="loading-plane"&gt;✈&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="loading-sub"&gt;Connecting to live airspace · KBOS&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- IMMINENT OVERLAY --&gt;</p>
+<p class="p1">&lt;div class="imm-overlay" id="immOverlay"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-ring"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-ring"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-ring"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-watermark" id="immWatermark"&gt;✈&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-badge"<span class="Apple-converted-space">    </span>id="immBadge"&gt;NOW DEPARTING&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-callsign" id="immCallsign"&gt;UAL456&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-dest" <span class="Apple-converted-space">    </span>id="immDest"&gt;→ Los Angeles · LAX&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-meta" <span class="Apple-converted-space">    </span>id="immMeta"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button class="imm-dismiss" onclick="dismissAlert()"&gt;DISMISS · ESC&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="imm-auto" id="immAuto"&gt;AUTO-DISMISS IN 15s&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- HEADER --&gt;</p>
+<p class="p1">&lt;div class="header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="header-left"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="board-title"&gt;FLIGHT BOARD&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="airport-name"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;strong&gt;BOS&lt;/strong&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>Boston Logan International</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div style="display:flex;align-items:center;gap:22px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="status-bar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="status-dot" id="statusDot"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span id="statusText"&gt;CONNECTING&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="clock" id="clock"&gt;--:--:--&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- BOARDS --&gt;</p>
+<p class="p1">&lt;div class="boards"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="board dep"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="board-header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="board-label"&gt;↑ DEPARTURES&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="board-count" id="depCount"&gt;--&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="col-headers"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span&gt;TIME&lt;/span&gt;&lt;span&gt;FLIGHT&lt;/span&gt;&lt;span&gt;DESTINATION&lt;/span&gt;&lt;span&gt;AIRLINE&lt;/span&gt;&lt;span&gt;AIRCRAFT&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="flight-list" id="depList"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="empty-state"&gt;&lt;div class="empty-icon"&gt;↑&lt;/div&gt;&lt;div&gt;LOADING...&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="board arr"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="board-header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="board-label"&gt;↓ ARRIVALS&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="board-count" id="arrCount"&gt;--&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="col-headers"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span&gt;TIME&lt;/span&gt;&lt;span&gt;FLIGHT&lt;/span&gt;&lt;span&gt;ORIGIN&lt;/span&gt;&lt;span&gt;AIRLINE&lt;/span&gt;&lt;span&gt;AIRCRAFT&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="flight-list" id="arrList"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="empty-state"&gt;&lt;div class="empty-icon"&gt;↓&lt;/div&gt;&lt;div&gt;LOADING...&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- BOTTOM BAR --&gt;</p>
+<p class="p1">&lt;div class="bottom-bar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;span&gt;BOS · &lt;span class="coord"&gt;42.3656°N<span class="Apple-converted-space">  </span>71.0096°W&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;span&gt;RADAR RANGE: &lt;span class="coord"&gt;±0.8°&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;span&gt;TRACKED: &lt;span class="coord" id="totalTracked"&gt;--&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;span&gt;SOURCE: OPENSKY NETWORK&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;span class="refresh-timer"&gt;NEXT REFRESH IN &lt;span id="refreshTimer"&gt;30&lt;/span&gt;s&lt;/span&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- TICKER --&gt;</p>
+<p class="p1">&lt;div class="ticker"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;span class="ticker-inner" id="ticker"&gt;✈<span class="Apple-converted-space">  </span>BOSTON LOGAN INTERNATIONAL AIRPORT · KBOS · LIVE AIRSPACE MONITORING<span class="Apple-converted-space">  </span>✈&lt;/span&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">// ─── FIXED AIRPORT ────────────────────────────────────────────────</p>
+<p class="p1">const airport = { icao:'KBOS', lat:42.3656, lon:-71.0096 };</p>
+<p class="p1">const RANGE = 0.8;</p>
+<p class="p1">const REFRESH = 30;</p>
+<p class="p1">let countdown = REFRESH;</p>
+<p class="p1">let allFlights = [];</p>
+<p class="p1">const routeCache = {};</p>
+<p class="p1">const dismissed = new Set();</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── CITY LOOKUP ──────────────────────────────────────────────────</p>
+<p class="p1">const CITY = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ATL:'Atlanta',BOS:'Boston',LAX:'Los Angeles',ORD:'Chicago O\'Hare',DFW:'Dallas',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>DEN:'Denver',JFK:'New York JFK',SFO:'San Francisco',SEA:'Seattle',LAS:'Las Vegas',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>MCO:'Orlando',EWR:'Newark',MIA:'Miami',CLT:'Charlotte',PHX:'Phoenix',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>IAH:'Houston',LGA:'New York LaGuardia',MSP:'Minneapolis',DTW:'Detroit',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>FLL:'Fort Lauderdale',PHL:'Philadelphia',BWI:'Baltimore',SLC:'Salt Lake City',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>MDW:'Chicago Midway',HNL:'Honolulu',SAN:'San Diego',TPA:'Tampa',PDX:'Portland',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>STL:'St. Louis',BNA:'Nashville',MCI:'Kansas City',AUS:'Austin',RDU:'Raleigh',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>PIT:'Pittsburgh',CLE:'Cleveland',IND:'Indianapolis',BUF:'Buffalo',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>PVD:'Providence',MHT:'Manchester NH',BDL:'Hartford',ALB:'Albany',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>LHR:'London Heathrow',CDG:'Paris Charles de Gaulle',AMS:'Amsterdam',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>FRA:'Frankfurt',MAD:'Madrid',BCN:'Barcelona',FCO:'Rome Fiumicino',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>MXP:'Milan Malpensa',ZRH:'Zurich',VIE:'Vienna',CPH:'Copenhagen',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ARN:'Stockholm',HEL:'Helsinki',OSL:'Oslo',DUB:'Dublin',BRU:'Brussels',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>LIS:'Lisbon',ATH:'Athens',IST:'Istanbul',MAN:'Manchester UK',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>DXB:'Dubai',AUH:'Abu Dhabi',DOH:'Doha',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>BOM:'Mumbai',DEL:'New Delhi',SIN:'Singapore',BKK:'Bangkok',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>NRT:'Tokyo Narita',HND:'Tokyo Haneda',ICN:'Seoul Incheon',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>HKG:'Hong Kong',TPE:'Taipei',SYD:'Sydney',MEL:'Melbourne',AKL:'Auckland',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>YYZ:'Toronto',YVR:'Vancouver',YUL:'Montreal',YYC:'Calgary',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>GRU:'São Paulo',BOG:'Bogotá',LIM:'Lima',MEX:'Mexico City',CUN:'Cancún',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>JNB:'Johannesburg',CPT:'Cape Town',NBO:'Nairobi',CAI:'Cairo',</p>
+<p class="p1">};</p>
+<p class="p1">const city = iata =&gt; iata ? (CITY[iata.toUpperCase()] || iata) : null;</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── AIRLINES ─────────────────────────────────────────────────────</p>
+<p class="p1">const AIRLINE = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>UAL:{iata:'UA',name:'United Airlines', <span class="Apple-converted-space">  </span>f:'🇺🇸'}, AAL:{iata:'AA',name:'American Airlines', f:'🇺🇸'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>DAL:{iata:'DL',name:'Delta Air Lines', <span class="Apple-converted-space">  </span>f:'🇺🇸'}, SWA:{iata:'WN',name:'Southwest',<span class="Apple-converted-space">          </span>f:'🇺🇸'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>JBU:{iata:'B6',name:'JetBlue Airways', <span class="Apple-converted-space">  </span>f:'🇺🇸'}, NKS:{iata:'NK',name:'Spirit Airlines',<span class="Apple-converted-space">    </span>f:'🇺🇸'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>FFT:{iata:'F9',name:'Frontier Airlines', f:'🇺🇸'}, HAL:{iata:'HA',name:'Hawaiian Airlines',<span class="Apple-converted-space">  </span>f:'🇺🇸'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ASA:{iata:'AS',name:'Alaska Airlines', <span class="Apple-converted-space">  </span>f:'🇺🇸'}, SKW:{iata:'OO',name:'SkyWest Airlines', <span class="Apple-converted-space">  </span>f:'🇺🇸'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>BAW:{iata:'BA',name:'British Airways', <span class="Apple-converted-space">  </span>f:'🇬🇧'}, VIR:{iata:'VS',name:'Virgin Atlantic',<span class="Apple-converted-space">    </span>f:'🇬🇧'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AFR:{iata:'AF',name:'Air France',<span class="Apple-converted-space">        </span>f:'🇫🇷'}, DLH:{iata:'LH',name:'Lufthansa',<span class="Apple-converted-space">          </span>f:'🇩🇪'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>UAE:{iata:'EK',name:'Emirates',<span class="Apple-converted-space">          </span>f:'🇦🇪'}, ETD:{iata:'EY',name:'Etihad Airways', <span class="Apple-converted-space">    </span>f:'🇦🇪'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>QTR:{iata:'QR',name:'Qatar Airways', <span class="Apple-converted-space">    </span>f:'🇶🇦'}, KLM:{iata:'KL',name:'KLM',<span class="Apple-converted-space">                </span>f:'🇳🇱'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ACA:{iata:'AC',name:'Air Canada',<span class="Apple-converted-space">        </span>f:'🇨🇦'}, WJA:{iata:'WS',name:'WestJet',<span class="Apple-converted-space">            </span>f:'🇨🇦'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>QFA:{iata:'QF',name:'Qantas',<span class="Apple-converted-space">            </span>f:'🇦🇺'}, SIA:{iata:'SQ',name:'Singapore Airlines', f:'🇸🇬'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ANA:{iata:'NH',name:'All Nippon Airways',f:'🇯🇵'}, JAL:{iata:'JL',name:'Japan Airlines', <span class="Apple-converted-space">    </span>f:'🇯🇵'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>KAL:{iata:'KE',name:'Korean Air',<span class="Apple-converted-space">        </span>f:'🇰🇷'}, THY:{iata:'TK',name:'Turkish Airlines', <span class="Apple-converted-space">  </span>f:'🇹🇷'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SAS:{iata:'SK',name:'Scandinavian Air',<span class="Apple-converted-space">  </span>f:'🇸🇪'}, IBE:{iata:'IB',name:'Iberia', <span class="Apple-converted-space">            </span>f:'🇪🇸'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>TAP:{iata:'TP',name:'TAP Air Portugal',<span class="Apple-converted-space">  </span>f:'🇵🇹'}, MSR:{iata:'MS',name:'EgyptAir', <span class="Apple-converted-space">          </span>f:'🇪🇬'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>FDX:{iata:'FX',name:'FedEx Express', <span class="Apple-converted-space">    </span>f:'🇺🇸'}, UPS:{iata:'5X',name:'UPS Airlines', <span class="Apple-converted-space">      </span>f:'🇺🇸'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>GTI:{iata:'GT',name:'Atlas Air', <span class="Apple-converted-space">        </span>f:'🇺🇸'}, AMX:{iata:'AM',name:'Aeromexico', <span class="Apple-converted-space">        </span>f:'🇲🇽'},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ETH:{iata:'ET',name:'Ethiopian Airlines',f:'🇪🇹'}, TAM:{iata:'LA',name:'LATAM Airlines', <span class="Apple-converted-space">    </span>f:'🇧🇷'},</p>
+<p class="p1">};</p>
+<p class="p1">const airline = cs =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!cs) return null;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return AIRLINE[cs.slice(0,3).toUpperCase()] || AIRLINE[cs.slice(0,2).toUpperCase()] || null;</p>
+<p class="p1">};</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── AIRCRAFT FLEET ───────────────────────────────────────────────</p>
+<p class="p1">const FLEET = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>UAL:[{w:3,t:'B737',s:'737-800/900'},{w:2,t:'B757',s:'757-200'},{w:2,t:'B767',s:'767-400'},{w:2,t:'B777',s:'777-200'},{w:1,t:'B787',s:'787-9'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AAL:[{w:4,t:'B737',s:'737 MAX 8'},{w:2,t:'A321',s:'A321neo'},{w:2,t:'B777',s:'777-300ER'},{w:1,t:'B787',s:'787-8'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>DAL:[{w:3,t:'B737',s:'737-900ER'},{w:2,t:'A220',s:'A220-300'},{w:2,t:'A321',s:'A321neo'},{w:2,t:'B757',s:'757-200'},{w:1,t:'A330',s:'A330-900'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SWA:[{w:1,t:'B737',s:'737 MAX 8'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>JBU:[{w:3,t:'A320',s:'A320ceo'},{w:3,t:'A321',s:'A321LR/XLR'},{w:1,t:'E190',s:'E190'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>BAW:[{w:3,t:'B777',s:'777-200ER'},{w:2,t:'B787',s:'787-9'},{w:2,t:'A320',s:'A320'},{w:1,t:'A380',s:'A380'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AFR:[{w:2,t:'A320',s:'A320neo'},{w:2,t:'B777',s:'777-300ER'},{w:2,t:'A350',s:'A350-900'},{w:1,t:'A380',s:'A380'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>DLH:[{w:2,t:'A320',s:'A320neo'},{w:2,t:'A350',s:'A350-900'},{w:2,t:'B747',s:'747-8i'},{w:1,t:'A380',s:'A380'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>UAE:[{w:3,t:'B777',s:'777-300ER'},{w:2,t:'A380',s:'A380'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ASA:[{w:4,t:'B737',s:'737-900ER'},{w:1,t:'B737',s:'737 MAX 9'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>FDX:[{w:2,t:'B767',s:'767-300F'},{w:2,t:'MD11',s:'MD-11F'},{w:1,t:'B777',s:'777F'}],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>UPS:[{w:2,t:'B767',s:'767-300F'},{w:2,t:'B747',s:'747-8F'},{w:1,t:'MD11',s:'MD-11F'}],</p>
+<p class="p1">};</p>
+<p class="p1">const GEN=[{w:4,t:'B737',s:'737-800'},{w:3,t:'A320',s:'A320'},{w:2,t:'B757',s:'757-200'},{w:2,t:'A321',s:'A321'},{w:1,t:'B777',s:'777-200'},{w:1,t:'B787',s:'787-9'},{w:1,t:'E175',s:'E175'},{w:1,t:'CRJ9',s:'CRJ-900'}];</p>
+<p class="p1">function acft(cs, icao) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const pool = FLEET[(cs||'').slice(0,3).toUpperCase()] || GEN;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const seed = parseInt((icao||'0000').slice(-4),16) || 1;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const tot = pool.reduce((s,e)=&gt;s+e.w,0);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>let p = seed % tot;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (const e of pool){p-=e.w;if(p&lt;0)return e;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return pool[0];</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── CLOCK ────────────────────────────────────────────────────────</p>
+<p class="p1">function tick() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('clock').textContent =</p>
+<p class="p1"><span class="Apple-converted-space">    </span>new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});</p>
+<p class="p1">}</p>
+<p class="p1">setInterval(tick,1000); tick();</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── HEADING INFERENCE FROM KBOS ──────────────────────────────────</p>
+<p class="p1">function inferDest(heading) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (heading==null) return null;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const h=((heading%360)+360)%360;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;195&amp;&amp;h&lt;255) return {city:'Los Angeles',iata:'LAX'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;245&amp;&amp;h&lt;278) return {city:'San Francisco',iata:'SFO'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;170&amp;&amp;h&lt;215) return {city:'Miami',iata:'MIA'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;258&amp;&amp;h&lt;295) return {city:'Denver',iata:'DEN'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;293&amp;&amp;h&lt;335) return {city:'Seattle',iata:'SEA'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;28 &amp;&amp;h&lt;72)<span class="Apple-converted-space">  </span>return {city:'London',iata:'LHR'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;55 &amp;&amp;h&lt;95)<span class="Apple-converted-space">  </span>return {city:'Paris',iata:'CDG'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;198&amp;&amp;h&lt;232) return {city:'Charlotte',iata:'CLT'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;262&amp;&amp;h&lt;302) return {city:'Chicago',iata:'ORD'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;315&amp;&amp;h&lt;348) return {city:'Montreal',iata:'YUL'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;150&amp;&amp;h&lt;192) return {city:'Orlando',iata:'MCO'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;220&amp;&amp;h&lt;260) return {city:'Dallas',iata:'DFW'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(h&gt;158&amp;&amp;h&lt;196) return {city:'Fort Lauderdale',iata:'FLL'};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return null;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── FETCH ────────────────────────────────────────────────────────</p>
+<p class="p1">async function fetchFlights() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>setStatus('loading');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const {lat,lon}=airport;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const res=await fetch(`https://opensky-network.org/api/states/all?lamin=${lat-RANGE}&amp;lomin=${lon-RANGE}&amp;lamax=${lat+RANGE}&amp;lomax=${lon+RANGE}`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if(!res.ok) throw new Error(res.status);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const data=await res.json();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>allFlights=(data.states||[]).map(parseState);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setStatus('live');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} catch(e) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>console.error(e);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>allFlights=demoData();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setStatus('error');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderBoards();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function parseState(s){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>icao:(s[0]||'------'), callsign:(s[1]||'').trim()||'------',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>country:s[2]||'', lon:s[5], lat:s[6],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>alt:s[7]?Math.round(s[7]*3.281):null,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>onGround:s[8],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>speed:s[9]?Math.round(s[9]*1.944):null,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>heading:s[10]!=null?Math.round(s[10]):null,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>vertRate:s[11]||0,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── CLASSIFY ─────────────────────────────────────────────────────</p>
+<p class="p1">function classify(f){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(f.onGround) return 'ground';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const a=f.alt||0,v=f.vertRate||0;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(v&lt;-1&amp;&amp;a&lt;8000)<span class="Apple-converted-space">  </span>return 'approach';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(v&gt;1 &amp;&amp;a&lt;15000) return 'climb';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(a&gt;20000)<span class="Apple-converted-space">        </span>return 'cruise';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return 'enroute';</p>
+<p class="p1">}</p>
+<p class="p1">function isDep(f){ const t=classify(f); return t==='climb'||t==='ground'; }</p>
+<p class="p1">function isArr(f){ const t=classify(f); return t==='approach'||(t==='enroute'&amp;&amp;(f.alt||0)&lt;5000); }</p>
+<p class="p1">function dist(f) { const d=(f.lat||airport.lat)-airport.lat,e=(f.lon||airport.lon)-airport.lon; return Math.sqrt(d*d+e*e)*111; }</p>
+<p class="p2"><br></p>
+<p class="p1">function isImmDep(f){ const d=dist(f); return (f.onGround&amp;&amp;d&lt;3)||(classify(f)==='climb'&amp;&amp;(f.alt||0)&lt;2000&amp;&amp;d&lt;5); }</p>
+<p class="p1">function isImmArr(f){ return classify(f)==='approach'&amp;&amp;(f.alt||0)&lt;1500&amp;&amp;dist(f)&lt;5; }</p>
+<p class="p2"><br></p>
+<p class="p1">function pill(f, isDeparture){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(isDeparture&amp;&amp;isImmDep(f)) return ['DEPARTING','s-imm-dep'];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(!isDeparture&amp;&amp;isImmArr(f)) return ['LANDING','s-imm-arr'];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const m={approach:['APPROACH','s-approach'],climb:['CLIMBING','s-climb'],cruise:['ENROUTE','s-cruise'],enroute:['ENROUTE','s-enroute'],ground:['ON GROUND','s-ground']};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return m[classify(f)]||['——','s-ground'];</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── TIME: never show past times ──────────────────────────────────</p>
+<p class="p1">function displayTime(f, isDeparture){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const now=new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(isDeparture){</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Time of departure = now minus how long it's been climbing</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const minsAgo = f.alt ? Math.round(f.alt/1800) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const est = new Date(now.getTime()-minsAgo*60000);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Clamp: never show more than 1 min in the past</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const clamped = new Date(Math.max(est.getTime(), now.getTime()-60000));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return fmt(clamped);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Arrival = always future: now + descent time</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const minsOut = f.alt ? Math.round(f.alt/1400) : 4;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return fmt(new Date(now.getTime()+Math.max(minsOut,1)*60000));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p1">function fmt(d){ return d.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit'}); }</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── DEST ─────────────────────────────────────────────────────────</p>
+<p class="p1">function destInfo(f, isDeparture){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const cs=f.callsign.trim(), r=routeCache[cs];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(r){</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if(isDeparture&amp;&amp;(r.destCity||r.destIata)) return {city:r.destCity||city(r.destIata),iata:r.destIata};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if(!isDeparture&amp;&amp;(r.origCity||r.origIata)) return {city:r.origCity||city(r.origIata),iata:r.origIata};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(isDeparture){ const inf=inferDest(f.heading); if(inf) return inf; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return {city:f.country||'——',iata:null};</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── RENDER ───────────────────────────────────────────────────────</p>
+<p class="p1">function renderBoards(){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const deps=allFlights.filter(isDep).sort((a,b)=&gt;dist(a)-dist(b));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const arrs=allFlights.filter(isArr).sort((a,b)=&gt;dist(a)-dist(b));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('depCount').textContent=`${deps.length} FLIGHTS`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('arrCount').textContent=`${arrs.length} FLIGHTS`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('totalTracked').textContent=allFlights.length;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderList('depList',deps,true);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderList('arrList',arrs,false);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>buildTicker(deps,arrs);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>checkAlerts(deps,arrs);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderList(id, flights, isDeparture){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const el=document.getElementById(id);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(!flights.length){</p>
+<p class="p1"><span class="Apple-converted-space">    </span>el.innerHTML=`&lt;div class="empty-state"&gt;&lt;div class="empty-icon"&gt;${isDeparture?'↑':'↓'}&lt;/div&gt;&lt;div&gt;NO ${isDeparture?'DEPARTURES':'ARRIVALS'} DETECTED&lt;/div&gt;&lt;div style="margin-top:8px;font-size:0.6rem;opacity:0.4"&gt;MONITORING KBOS AIRSPACE&lt;/div&gt;&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>el.innerHTML=flights.slice(0,20).map(f=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const t=displayTime(f,isDeparture);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const cs=f.callsign.padEnd(7).slice(0,7);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const d=destInfo(f,isDeparture);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const c=(d.city||'——');<span class="Apple-converted-space">        </span>// full city name — no slice</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ia=d.iata||'';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const al=airline(f.callsign);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const alName=al ? al.name : (f.country||'——');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const alf=al?al.f:'';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const a=acft(f.callsign,f.icao);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const imm=isDeparture?isImmDep(f):isImmArr(f);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const rc=imm?(isDeparture?'flight-row imm-dep':'flight-row imm-arr'):'flight-row';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return `&lt;div class="${rc}"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="cell cell-time"&gt;${t}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="cell cell-flight"&gt;${cs}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="cell"&gt;&lt;span class="cell-dest-city"&gt;${c}&lt;/span&gt;${ia?`&lt;span class="cell-dest-iata"&gt;${ia}&lt;/span&gt;`:''}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="cell"&gt;&lt;span class="cell-airline-name"&gt;${alf} ${alName}&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="cell"&gt;&lt;span class="cell-acft-type"&gt;${a.t}&lt;/span&gt;&lt;span class="cell-acft-sub"&gt;${a.s}&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── IMMINENT ALERT ───────────────────────────────────────────────</p>
+<p class="p1">// ─── ALERT QUEUE SYSTEM ───────────────────────────────────────────</p>
+<p class="p1">// How it works:</p>
+<p class="p1">// <span class="Apple-converted-space">  </span>1. On each data refresh, ALL imminent flights are collected and sorted</p>
+<p class="p1">//<span class="Apple-converted-space">      </span>by proximity (closest to airport first). Arrivals beat departures</p>
+<p class="p1">//<span class="Apple-converted-space">      </span>at equal distance since a landing plane is more immediately visible.</p>
+<p class="p1">// <span class="Apple-converted-space">  </span>2. Any flight already dismissed this session is skipped.</p>
+<p class="p1">// <span class="Apple-converted-space">  </span>3. If an alert is currently showing, new candidates are queued —</p>
+<p class="p1">//<span class="Apple-converted-space">      </span>they will display automatically after the current one clears.</p>
+<p class="p1">// <span class="Apple-converted-space">  </span>4. Each alert shows for 10s (or until manually dismissed), then the</p>
+<p class="p1">//<span class="Apple-converted-space">      </span>next queued flight fires immediately.</p>
+<p class="p1">// <span class="Apple-converted-space">  </span>5. If multiple flights are simultaneously imminent (e.g. two planes</p>
+<p class="p1">//<span class="Apple-converted-space">      </span>on approach at the same time), each gets its own alert in sequence.</p>
+<p class="p2"><br></p>
+<p class="p1">let alertQueue = []; <span class="Apple-converted-space">  </span>// pending {f, isDeparture} entries</p>
+<p class="p1">let alertActive = false;</p>
+<p class="p1">let autoInterval = null;</p>
+<p class="p1">let autoCountdown = 10;</p>
+<p class="p2"><br></p>
+<p class="p1">function checkAlerts(deps, arrs) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Build full candidate list sorted: arrivals first (more dramatic),</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// then by distance to airport (closest first)</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const cands = [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>...arrs.filter(isImmArr).map(f=&gt;({f, isDeparture:false, d:dist(f)})),</p>
+<p class="p1"><span class="Apple-converted-space">    </span>...deps.filter(isImmDep).map(f=&gt;({f, isDeparture:true,<span class="Apple-converted-space">  </span>d:dist(f)})),</p>
+<p class="p1"><span class="Apple-converted-space">  </span>]</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.filter(({f}) =&gt; !dismissed.has(f.callsign))</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.sort((a,b) =&gt; a.d - b.d);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Merge into queue: add any not already queued or showing</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const inQueue = new Set(alertQueue.map(e=&gt;e.f.callsign));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (const c of cands) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (!inQueue.has(c.f.callsign)) alertQueue.push(c);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// If nothing is showing right now, kick off the queue</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!alertActive &amp;&amp; alertQueue.length &gt; 0) showNextAlert();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function showNextAlert() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (alertQueue.length === 0) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const {f, isDeparture} = alertQueue.shift();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Skip if dismissed while waiting in queue</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (dismissed.has(f.callsign)) { showNextAlert(); return; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>alertActive = true;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const ov = document.getElementById('immOverlay');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ov.className = 'imm-overlay show ' + (isDeparture ? 'is-dep' : 'is-arr');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const d<span class="Apple-converted-space">  </span>= destInfo(f, isDeparture);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const al = airline(f.callsign);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const a<span class="Apple-converted-space">  </span>= acft(f.callsign, f.icao);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const dst = d.city ? (d.city + (d.iata ? ' · ' + d.iata : '')) : '——';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const queuedMore = alertQueue.filter(e =&gt; !dismissed.has(e.f.callsign)).length;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('immBadge').textContent<span class="Apple-converted-space">    </span>= isDeparture ? '✈<span class="Apple-converted-space">  </span>NOW DEPARTING' : '✈<span class="Apple-converted-space">  </span>NOW LANDING';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('immCallsign').textContent = f.callsign;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('immDest').textContent <span class="Apple-converted-space">    </span>= isDeparture ? `→ ${dst}` : `← ${dst}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('immWatermark').style.transform = isDeparture ? 'rotate(-15deg)' : 'rotate(15deg) scaleX(-1)';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const alStr<span class="Apple-converted-space">  </span>= al ? `${al.f} ${al.name}` : f.country || '—';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const altStr = f.alt <span class="Apple-converted-space">  </span>? `${f.alt.toLocaleString()} ft` : '—';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const spdStr = f.speed ? `${f.speed} kts` : '—';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const queueNote = queuedMore &gt; 0 ? `&lt;br&gt;&lt;span style="color:#555;font-size:0.7rem"&gt;+${queuedMore} MORE IN QUEUE&lt;/span&gt;` : '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('immMeta').innerHTML =</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`&lt;em&gt;${alStr}&lt;/em&gt;&lt;br&gt;${a.t} · ${a.s}&lt;br&gt;ALT ${altStr}<span class="Apple-converted-space">  </span>·<span class="Apple-converted-space">  </span>SPD ${spdStr}${queueNote}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Countdown — 10s per flight</p>
+<p class="p1"><span class="Apple-converted-space">  </span>autoCountdown = 10;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>clearInterval(autoInterval);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>autoInterval = setInterval(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>autoCountdown--;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (autoCountdown &lt;= 0) { clearInterval(autoInterval); dismissAlert(f.callsign); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}, 1000);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function dismissAlert(cs) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>alertActive = false;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>clearInterval(autoInterval);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('immOverlay').className = 'imm-overlay';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (cs) dismissed.add(cs);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Fire next in queue after a short breath</p>
+<p class="p1"><span class="Apple-converted-space">  </span>setTimeout(() =&gt; { if (!alertActive &amp;&amp; alertQueue.length &gt; 0) showNextAlert(); }, 600);</p>
+<p class="p1">}</p>
+<p class="p1">document.addEventListener('keydown', e =&gt; { if (e.key === 'Escape') dismissAlert(); });</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── TICKER ───────────────────────────────────────────────────────</p>
+<p class="p1">function buildTicker(deps,arrs){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const items=[</p>
+<p class="p1"><span class="Apple-converted-space">    </span>...deps.slice(0,5).map(f=&gt;{const d=destInfo(f,true),al=airline(f.callsign),a=acft(f.callsign,f.icao);return `↑ ${f.callsign} ${al?al.f:''} → ${d.city||d.iata||'—'} · ${a.t}`;}),</p>
+<p class="p1"><span class="Apple-converted-space">    </span>...arrs.slice(0,5).map(f=&gt;{const d=destInfo(f,false),al=airline(f.callsign),a=acft(f.callsign,f.icao);return `↓ ${f.callsign} ${al?al.f:''} ← ${d.city||d.iata||'—'} · ${a.t}`;}),</p>
+<p class="p1"><span class="Apple-converted-space">  </span>];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(items.length) document.getElementById('ticker').textContent=' <span class="Apple-converted-space">  </span>✈ <span class="Apple-converted-space">  </span>'+items.join(' <span class="Apple-converted-space">  </span>· <span class="Apple-converted-space">  </span>')+' <span class="Apple-converted-space">  </span>✈ <span class="Apple-converted-space">  </span>BOSTON LOGAN INTERNATIONAL · KBOS <span class="Apple-converted-space">  </span>✈ <span class="Apple-converted-space">  </span>';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── STATUS ───────────────────────────────────────────────────────</p>
+<p class="p1">function setStatus(s){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const dot=document.getElementById('statusDot'),txt=document.getElementById('statusText');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>dot.className='status-dot';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(s==='live'){dot.classList.add('live');txt.textContent='LIVE';}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>else if(s==='error'){dot.classList.add('error');txt.textContent='DEMO MODE';}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>else txt.textContent='UPDATING...';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── DEMO DATA ────────────────────────────────────────────────────</p>
+<p class="p1">function demoData(){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const {lat,lon}=airport;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const now=new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const ft=(m)=&gt;`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()+m&lt;60?now.getMinutes()+m:now.getMinutes()+m-60).padStart(2,'0')}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const raw=[</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'UAL456',dep:true, dest:{city:'Los Angeles',iata:'LAX'},<span class="Apple-converted-space">  </span>alt:8200, vr:6},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'AAL102',dep:true, dest:{city:'Dallas',iata:'DFW'},<span class="Apple-converted-space">        </span>alt:5600, vr:9},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'DAL887',dep:true, dest:{city:'Atlanta',iata:'ATL'}, <span class="Apple-converted-space">      </span>alt:3100, vr:12},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'JBU234',dep:true, dest:{city:'Fort Lauderdale',iata:'FLL'},alt:11500,vr:5},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'BAW213',dep:true, dest:{city:'London Heathrow',iata:'LHR'},alt:14200,vr:7},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'SWA601',dep:true, dest:{city:'Chicago Midway',iata:'MDW'},alt:600,<span class="Apple-converted-space">  </span>vr:22},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'AFR336',dep:true, dest:{city:'Paris CDG',iata:'CDG'}, <span class="Apple-converted-space">    </span>alt:13100,vr:5},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'AAL788',dep:false,orig:{city:'Miami',iata:'MIA'}, <span class="Apple-converted-space">        </span>alt:3400, vr:-9},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'DAL441',dep:false,orig:{city:'Minneapolis',iata:'MSP'}, <span class="Apple-converted-space">  </span>alt:5100, vr:-11},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'UAL339',dep:false,orig:{city:'San Francisco',iata:'SFO'}, alt:800,<span class="Apple-converted-space">  </span>vr:-16},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'JBU901',dep:false,orig:{city:'Orlando',iata:'MCO'}, <span class="Apple-converted-space">      </span>alt:4700, vr:-8},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'DLH412',dep:false,orig:{city:'Frankfurt',iata:'FRA'}, <span class="Apple-converted-space">    </span>alt:1800, vr:-12},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{cs:'SWA188',dep:false,orig:{city:'Denver',iata:'DEN'},<span class="Apple-converted-space">        </span>alt:6200, vr:-6},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>return raw.map((d,i)=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const a=acft(d.cs,'demo'+i);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>routeCache[d.cs]=d.dep</p>
+<p class="p1"><span class="Apple-converted-space">      </span>?{destCity:d.dest.city,destIata:d.dest.iata,schedDepTime:null,origCity:null,origIata:null}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>:{origCity:d.orig.city,origIata:d.orig.iata,schedArrTime:null,destCity:null,destIata:null};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>icao:'demo'+i, callsign:d.cs, country:'United States',</p>
+<p class="p1"><span class="Apple-converted-space">      </span>lat:lat+(Math.random()-0.5)*1.2, lon:lon+(Math.random()-0.5)*1.2,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>alt:Math.round(d.alt*(0.92+Math.random()*0.16)),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>onGround:d.dep&amp;&amp;d.alt&lt;300,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>speed:260+Math.floor(Math.random()*200),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>heading:Math.floor(Math.random()*360),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>vertRate:d.vr*(0.85+Math.random()*0.3),</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── REFRESH LOOP ─────────────────────────────────────────────────</p>
+<p class="p1">setInterval(()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">  </span>countdown--;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('refreshTimer').textContent=countdown;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(countdown&lt;=0){ countdown=REFRESH; fetchFlights(); }</p>
+<p class="p1">},1000);</p>
+<p class="p2"><br></p>
+<p class="p1">// ─── INIT ─────────────────────────────────────────────────────────</p>
+<p class="p1">setTimeout(()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('loading').classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>fetchFlights();</p>
+<p class="p1">},2200);</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

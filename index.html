@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v4 · 2026.03.29</title>
+<title>Boston Logan — Flight Board v5 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
+
+  html { font-size: 20px; }
 
   :root {
     --bg: #0a0a0a;
@@ -29,10 +31,11 @@
     background: var(--bg);
     color: var(--text);
     font-family: 'IBM Plex Mono', monospace;
-    min-height: 100vh;
+    height: 100vh;
+    max-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
   body::before {
@@ -47,13 +50,14 @@
   .header {
     background: var(--header-bg);
     border-bottom: 3px solid #3a3d42;
-    padding: 16px 40px;
+    padding: 12px 40px;
     display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
   }
   .header-left { display: flex; align-items: center; gap: 24px; }
   .board-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 3.6rem; color: #e8eaed;
+    font-size: 2.8rem; color: #e8eaed;
     letter-spacing: 8px; line-height: 1;
     text-shadow: 0 0 28px rgba(220,225,235,0.2);
     white-space: nowrap;
@@ -134,55 +138,55 @@
     font-size: 0.63rem; color: #3a3d42; line-height: 1.7; margin-top: 8px;
   }
   .airport-name {
-    font-size: 0.85rem; color: #6b7280;
+    font-size: 0.75rem; color: #6b7280;
     letter-spacing: 2px; text-transform: uppercase;
     border: 1px solid #3a3d42; padding: 6px 16px; line-height: 1.6;
     white-space: nowrap;
   }
-  .airport-name strong { display: inline; font-size: 1.05rem; color: #c8cdd6; letter-spacing: 4px; margin-right: 10px; }
+  .airport-name strong { display: inline; font-size: 0.9rem; color: #c8cdd6; letter-spacing: 4px; margin-right: 10px; }
   .clock {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 2.2rem; color: #d0d4dc; letter-spacing: 4px;
+    font-size: 1.8rem; color: #d0d4dc; letter-spacing: 4px;
   }
-  .status-bar { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--muted); letter-spacing: 1px; }
+  .status-bar { display: flex; align-items: center; gap: 12px; font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; }
   .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); display: inline-block; }
   .status-dot.live  { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
   .status-dot.error { background: var(--red); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
   /* ─── BOARDS ─── */
-  .boards { display: flex; flex-direction: column; flex: 1; }
-  .board { border-right: none; border-bottom: 1px solid #1a1a1a; }
+  .boards { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .board { border-right: none; border-bottom: 1px solid #1a1a1a; display: flex; flex-direction: column; flex: 1; min-height: 0; }
   .board:last-child { border-bottom: none; }
 
   .board-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 28px; border-bottom: 1px solid #1e1e1e;
+    padding: 10px 28px; border-bottom: 1px solid #1e1e1e;
+    flex-shrink: 0;
   }
   .board-label {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.6rem; letter-spacing: 8px;
+    font-size: 1.8rem; letter-spacing: 8px;
     display: flex; align-items: center; gap: 10px;
   }
   .dep .board-label { color: var(--amber); }
   .arr .board-label { color: var(--blue); }
-  .board-count { font-size: 0.9rem; color: var(--muted); letter-spacing: 2px; }
+  .board-count { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; }
 
   /* ─── COLUMNS ─── */
   .col-headers {
     display: grid;
     grid-template-columns: 90px 130px 1fr 280px 120px 110px;
-    padding: 8px 28px;
-    font-size: 0.9rem; color: #7a7068; letter-spacing: 2px;
+    padding: 6px 28px;
+    font-size: 0.85rem; color: #7a7068; letter-spacing: 2px;
     border-bottom: 1px solid #161616; text-transform: uppercase;
+    flex-shrink: 0;
   }
-  .dep .col-headers { color: #7a7068; }
-  .arr .col-headers { color: #7a7068; }
-  .flight-list { min-height: 160px; }
+  .flight-list { flex: 1; min-height: 0; overflow: hidden; }
   .flight-row {
     display: grid;
     grid-template-columns: 90px 130px 1fr 280px 120px 110px;
-    padding: 0 28px; height: 72px;
+    padding: 0 28px; height: 62px;
     align-items: center;
     border-bottom: 1px solid #141414;
     animation: flipIn 0.35s ease-out;
@@ -195,29 +199,29 @@
 
   @keyframes flipIn { from{opacity:0;transform:rotateX(-80deg) translateY(-6px)} to{opacity:1;transform:none} }
 
-  .cell { font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cell { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Departures — amber accents, white for airline */
-  .dep .cell-time         { color: var(--text); font-size: 1.3rem; font-weight: 700; }
-  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.25rem; }
-  .dep .cell-dest-city    { color: var(--text); font-size: 1.15rem; display: block; }
-  .dep .cell-dest-iata    { color: var(--amber); font-size: 0.95rem; display: block; margin-top: 2px; }
-  .dep .cell-airline-name { color: var(--text); font-size: 1.1rem; display: block; letter-spacing: 1px; }
-  .dep .cell-acft-type    { color: var(--amber); font-size: 1.2rem; display: block; }
-  .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.9rem; display: block; margin-top: 2px; }
+  /* Departures */
+  .dep .cell-time         { color: var(--text); font-size: 1.1rem; font-weight: 700; }
+  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.05rem; }
+  .dep .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
+  .dep .cell-dest-iata    { color: var(--amber); font-size: 0.78rem; display: block; margin-top: 2px; }
+  .dep .cell-airline-name { color: var(--text); font-size: 0.95rem; display: block; letter-spacing: 1px; }
+  .dep .cell-acft-type    { color: var(--amber); font-size: 1rem; display: block; }
+  .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.72rem; display: block; margin-top: 2px; }
 
-  /* Arrivals — white for time/city/airline; blue for flight number & accents */
-  .arr .cell-time         { color: var(--text); font-size: 1.3rem; font-weight: 700; }
-  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 1.25rem; }
-  .arr .cell-dest-city    { color: var(--text); font-size: 1.15rem; display: block; }
-  .arr .cell-dest-iata    { color: var(--blue); font-size: 0.95rem; display: block; margin-top: 2px; }
-  .arr .cell-airline-name { color: var(--text); font-size: 1.1rem; display: block; letter-spacing: 1px; }
-  .arr .cell-acft-type    { color: var(--blue); font-size: 1.2rem; display: block; }
-  .arr .cell-acft-sub     { color: #235060; font-size: 0.9rem; display: block; margin-top: 2px; }
+  /* Arrivals */
+  .arr .cell-time         { color: var(--text); font-size: 1.1rem; font-weight: 700; }
+  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 1.05rem; }
+  .arr .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
+  .arr .cell-dest-iata    { color: var(--blue); font-size: 0.78rem; display: block; margin-top: 2px; }
+  .arr .cell-airline-name { color: var(--text); font-size: 0.95rem; display: block; letter-spacing: 1px; }
+  .arr .cell-acft-type    { color: var(--blue); font-size: 1rem; display: block; }
+  .arr .cell-acft-sub     { color: #235060; font-size: 0.72rem; display: block; margin-top: 2px; }
 
   /* LOOK column */
-  .cell-look-dir  { font-size: 1.15rem; font-weight: 700; display: block; letter-spacing: 2px; }
-  .cell-look-deg  { font-size: 0.82rem; display: block; margin-top: 2px; color: var(--muted); }
+  .cell-look-dir  { font-size: 1rem; font-weight: 700; display: block; letter-spacing: 2px; }
+  .cell-look-deg  { font-size: 0.7rem; display: block; margin-top: 2px; color: var(--muted); }
   .dep .cell-look-dir { color: var(--amber); }
   .arr .cell-look-dir { color: var(--blue); }
   .cell-look-dir.overhead { color: #ff6060 !important; animation: blink-d 0.8s infinite; }
@@ -254,12 +258,12 @@
   .empty-icon  { font-size:2.4rem; opacity:0.25; }
 
   /* Bottom bar */
-  .bottom-bar { background:#060606;border-top:1px solid #1a1a1a;padding:10px 28px;display:flex;align-items:center;gap:28px;font-size:0.82rem;color:var(--muted);letter-spacing:1px; }
+  .bottom-bar { background:#060606;border-top:1px solid #1a1a1a;padding:8px 28px;display:flex;align-items:center;gap:28px;font-size:0.82rem;color:var(--muted);letter-spacing:1px;flex-shrink:0; }
   .bottom-bar .coord { color:var(--amber-dim);font-family:'Share Tech Mono',monospace; }
   .refresh-timer { margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.82rem;color:var(--muted); }
 
   /* Ticker */
-  .ticker { background:#050505;border-top:1px solid #161616;padding:7px 0;overflow:hidden;white-space:nowrap; }
+  .ticker { background:#050505;border-top:1px solid #161616;padding:7px 0;overflow:hidden;white-space:nowrap;flex-shrink:0; }
   .ticker-inner { display:inline-block;animation:scroll 45s linear infinite;font-size:0.85rem;color:var(--amber-dim);letter-spacing:2px; }
   @keyframes scroll { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
 
@@ -350,7 +354,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">v4 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">v5 · 2026.03.29</div>
 </div>
 
 <script>
@@ -693,26 +697,48 @@ document.addEventListener('click', e => {
 });
 
 // ─── HEADING INFERENCE FROM KBOS ──────────────────────────────────
+// Headings are outbound from KBOS. Ranges cover full 360° with no gaps.
+const DEST_BY_HEADING = [
+  { min:  0,  max: 15,  city:'Bangor',           iata:'BGR' },
+  { min: 15,  max: 38,  city:'London',            iata:'LHR' },
+  { min: 38,  max: 65,  city:'Reykjavik',         iata:'KEF' },
+  { min: 65,  max: 85,  city:'Paris',             iata:'CDG' },
+  { min: 85,  max: 110, city:'Lisbon',            iata:'LIS' },
+  { min:110,  max: 135, city:'Bermuda',           iata:'BDA' },
+  { min:135,  max: 155, city:'Fort Lauderdale',   iata:'FLL' },
+  { min:155,  max: 175, city:'Orlando',           iata:'MCO' },
+  { min:175,  max: 195, city:'Miami',             iata:'MIA' },
+  { min:195,  max: 210, city:'Charlotte',         iata:'CLT' },
+  { min:210,  max: 228, city:'Atlanta',           iata:'ATL' },
+  { min:228,  max: 242, city:'Dallas',            iata:'DFW' },
+  { min:242,  max: 255, city:'Los Angeles',       iata:'LAX' },
+  { min:255,  max: 268, city:'San Francisco',     iata:'SFO' },
+  { min:268,  max: 282, city:'Denver',            iata:'DEN' },
+  { min:282,  max: 298, city:'Chicago',           iata:'ORD' },
+  { min:298,  max: 315, city:'Minneapolis',       iata:'MSP' },
+  { min:315,  max: 330, city:'Seattle',           iata:'SEA' },
+  { min:330,  max: 345, city:'Montreal',          iata:'YUL' },
+  { min:345,  max: 360, city:'Bangor',            iata:'BGR' },
+];
+
 function inferDest(heading) {
-  if (heading==null) return null;
-  const h=((heading%360)+360)%360;
-  if(h>195&&h<255) return {city:'Los Angeles',iata:'LAX'};
-  if(h>245&&h<278) return {city:'San Francisco',iata:'SFO'};
-  if(h>170&&h<215) return {city:'Miami',iata:'MIA'};
-  if(h>258&&h<295) return {city:'Denver',iata:'DEN'};
-  if(h>293&&h<335) return {city:'Seattle',iata:'SEA'};
-  if(h>28 &&h<72)  return {city:'London',iata:'LHR'};
-  if(h>55 &&h<95)  return {city:'Paris',iata:'CDG'};
-  if(h>198&&h<232) return {city:'Charlotte',iata:'CLT'};
-  if(h>262&&h<302) return {city:'Chicago',iata:'ORD'};
-  if(h>315&&h<348) return {city:'Montreal',iata:'YUL'};
-  if(h>150&&h<192) return {city:'Orlando',iata:'MCO'};
-  if(h>220&&h<260) return {city:'Dallas',iata:'DFW'};
-  if(h>158&&h<196) return {city:'Fort Lauderdale',iata:'FLL'};
+  if (heading == null) return null;
+  const h = ((heading % 360) + 360) % 360;
+  for (const d of DEST_BY_HEADING) {
+    if (h >= d.min && h < d.max) return { city: d.city, iata: d.iata };
+  }
   return null;
 }
 
+function inferOrig(heading) {
+  // Arrivals come from the opposite direction
+  if (heading == null) return null;
+  return inferDest((heading + 180) % 360);
+}
+
 // ─── FETCH ────────────────────────────────────────────────────────
+let isDemo = false;
+
 async function fetchFlights() {
   setStatus('loading');
   const {lat,lon}=airport;
@@ -722,9 +748,11 @@ async function fetchFlights() {
     if(!res.ok) throw new Error(res.status);
     const data=await res.json();
     allFlights=(data.ac||[]).map(parseState).filter(f=>f.lat!=null&&f.lon!=null);
+    isDemo = false;
     setStatus('live');
   } catch(e) {
-    console.error(e);
+    console.warn('Live feed unavailable, using demo data:', e.message);
+    isDemo = true;
     allFlights=demoData();
     setStatus('error');
   }
@@ -796,7 +824,8 @@ function destInfo(f, isDeparture){
     if(!isDeparture&&(r.origCity||r.origIata)) return {city:r.origCity||city(r.origIata),iata:r.origIata};
   }
   if(isDeparture){ const inf=inferDest(f.heading); if(inf) return inf; }
-  return {city:f.country||'——',iata:null};
+  if(!isDeparture){ const inf=inferOrig(f.heading); if(inf) return inf; }
+  return {city:'——',iata:null};
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────
@@ -818,7 +847,7 @@ function renderList(id, flights, isDeparture){
     el.innerHTML=`<div class="empty-state"><div class="empty-icon">${isDeparture?'↑':'↓'}</div><div>NO ${isDeparture?'DEPARTURES':'ARRIVALS'} DETECTED</div><div style="margin-top:8px;font-size:0.6rem;opacity:0.4">MONITORING KBOS AIRSPACE</div></div>`;
     return;
   }
-  el.innerHTML=flights.slice(0,20).map(f=>{
+  el.innerHTML=flights.slice(0,6).map(f=>{
     const t=displayTime(f,isDeparture);
     const cs=f.callsign.padEnd(7).slice(0,7);
     const d=destInfo(f,isDeparture);
@@ -955,38 +984,69 @@ function setStatus(s){
 }
 
 // ─── DEMO DATA ────────────────────────────────────────────────────
-// Flights are placed in positions visible from 42.3662°N 71.0621°W
-// facing NE — bearings 010°–160° from the apartment
-function demoData(){
-  const raw=[
-    // Departures — climbing NE/E after takeoff, visible from apt
-    {cs:'UAL456',dep:true, dest:{city:'Los Angeles',    iata:'LAX'}, alt:8200,  vr:6,  flat:42.390, flon:-70.980}, // NE, ~087°
-    {cs:'AAL102',dep:true, dest:{city:'Dallas',         iata:'DFW'}, alt:5600,  vr:9,  flat:42.380, flon:-70.990}, // E,  ~083°
-    {cs:'DAL887',dep:true, dest:{city:'Atlanta',        iata:'ATL'}, alt:3100,  vr:12, flat:42.375, flon:-71.000}, // ESE, ~090°
-    {cs:'JBU234',dep:true, dest:{city:'Fort Lauderdale',iata:'FLL'}, alt:11500, vr:5,  flat:42.400, flon:-70.960}, // NE, ~062°
-    {cs:'BAW213',dep:true, dest:{city:'London Heathrow',iata:'LHR'}, alt:14200, vr:7,  flat:42.410, flon:-70.950}, // NNE, ~055°
-    {cs:'SWA601',dep:true, dest:{city:'Chicago Midway', iata:'MDW'}, alt:600,   vr:22, flat:42.368, flon:-71.005}, // E,  ~085°
-    // Arrivals — approaching from E/NE on final to Logan
-    {cs:'AAL788',dep:false,orig:{city:'Miami',          iata:'MIA'}, alt:3400,  vr:-9,  flat:42.370, flon:-70.970}, // E,   ~088°
-    {cs:'DAL441',dep:false,orig:{city:'Minneapolis',    iata:'MSP'}, alt:5100,  vr:-11, flat:42.385, flon:-70.985}, // ENE, ~075°
-    {cs:'UAL339',dep:false,orig:{city:'San Francisco',  iata:'SFO'}, alt:800,   vr:-16, flat:42.366, flon:-71.002}, // E,   ~086°
-    {cs:'JBU901',dep:false,orig:{city:'Orlando',        iata:'MCO'}, alt:4700,  vr:-8,  flat:42.360, flon:-70.975}, // SE,  ~097°
-    {cs:'DLH412',dep:false,orig:{city:'Frankfurt',      iata:'FRA'}, alt:1800,  vr:-12, flat:42.378, flon:-70.990}, // ENE, ~080°
-  ];
+// Flights drift realistically each refresh so the board feels alive.
+// Departures climb out NE/E, arrivals descend from E toward KBOS.
+// When a flight drifts out of range it "respawns" near start.
 
-  return raw.map((d,i)=>{
-    const a=acft(d.cs,'demo'+i);
-    routeCache[d.cs]=d.dep
-      ?{destCity:d.dest.city,destIata:d.dest.iata,schedDepTime:null,origCity:null,origIata:null}
-      :{origCity:d.orig.city,origIata:d.orig.iata,schedArrTime:null,destCity:null,destIata:null};
+let demoTick = 0;
+
+const DEMO_POOL = [
+  // ── Departures (climb outbound) ──
+  {cs:'UAL456',dep:true, dest:{city:'Los Angeles',    iata:'LAX'}, alt0:1200,  vr:18,  flat0:42.372, flon0:-71.005, dlat: 0.0012, dlon: 0.0018},
+  {cs:'AAL102',dep:true, dest:{city:'Dallas',         iata:'DFW'}, alt0:3800,  vr:14,  flat0:42.378, flon0:-70.995, dlat: 0.0008, dlon: 0.0014},
+  {cs:'DAL887',dep:true, dest:{city:'Atlanta',        iata:'ATL'}, alt0:800,   vr:22,  flat0:42.368, flon0:-71.008, dlat: 0.0006, dlon: 0.0010},
+  {cs:'JBU234',dep:true, dest:{city:'Fort Lauderdale',iata:'FLL'}, alt0:6500,  vr:10,  flat0:42.392, flon0:-70.970, dlat: 0.0010, dlon: 0.0016},
+  {cs:'BAW213',dep:true, dest:{city:'London Heathrow',iata:'LHR'}, alt0:9800,  vr:8,   flat0:42.405, flon0:-70.955, dlat: 0.0014, dlon: 0.0012},
+  {cs:'SWA601',dep:true, dest:{city:'Chicago Midway', iata:'MDW'}, alt0:400,   vr:28,  flat0:42.366, flon0:-71.010, dlat: 0.0004, dlon: 0.0008},
+  {cs:'NKS318',dep:true, dest:{city:'Orlando',        iata:'MCO'}, alt0:2200,  vr:16,  flat0:42.374, flon0:-71.002, dlat: 0.0007, dlon: 0.0012},
+  // ── Arrivals (descend inbound) ──
+  {cs:'AAL788',dep:false,orig:{city:'Miami',          iata:'MIA'}, alt0:4800,  vr:-10, flat0:42.374, flon0:-70.940, dlat:-0.0003, dlon:-0.0020},
+  {cs:'DAL441',dep:false,orig:{city:'Minneapolis',    iata:'MSP'}, alt0:6200,  vr:-9,  flat0:42.390, flon0:-70.950, dlat:-0.0005, dlon:-0.0018},
+  {cs:'UAL339',dep:false,orig:{city:'San Francisco',  iata:'SFO'}, alt0:2400,  vr:-14, flat0:42.370, flon0:-70.960, dlat:-0.0002, dlon:-0.0022},
+  {cs:'JBU901',dep:false,orig:{city:'Orlando',        iata:'MCO'}, alt0:5500,  vr:-8,  flat0:42.358, flon0:-70.935, dlat:-0.0002, dlon:-0.0016},
+  {cs:'DLH412',dep:false,orig:{city:'Frankfurt',      iata:'FRA'}, alt0:3200,  vr:-12, flat0:42.382, flon0:-70.955, dlat:-0.0004, dlon:-0.0019},
+  {cs:'AFR381',dep:false,orig:{city:'Paris',          iata:'CDG'}, alt0:7400,  vr:-7,  flat0:42.396, flon0:-70.930, dlat:-0.0006, dlon:-0.0014},
+  {cs:'ETH700',dep:false,orig:{city:'São Paulo',      iata:'GRU'}, alt0:1200,  vr:-16, flat0:42.368, flon0:-70.980, dlat:-0.0001, dlon:-0.0024},
+];
+
+function demoData(){
+  demoTick++;
+  const t = demoTick;
+
+  // Cycle a few flights in/out each phase so the count varies
+  const phase = Math.floor(t / 3) % 3;
+  const active = DEMO_POOL.filter((_,i) => i < 8 || (i + phase) % 3 !== 0);
+
+  return active.map((d,i) => {
+    // Wrap factor: flight "resets" after drifting too far (every ~12 ticks)
+    const cycle = 12;
+    const local = t % cycle;
+
+    const lat = d.flat0 + d.dlat * local + Math.sin(t*0.7+i)*0.0008;
+    const lon = d.flon0 + d.dlon * local + Math.cos(t*0.5+i)*0.0008;
+
+    let alt = Math.max(200, Math.round(
+      d.alt0 + d.vr * local * 50 * (0.9 + Math.sin(i)*0.15)
+    ));
+    // Clamp: departures max out, arrivals floor out, then sit near start values
+    if (d.dep && alt > 16000) alt = d.alt0 + Math.round(Math.random()*600);
+    if (!d.dep && alt < 300)  alt = d.alt0 + Math.round(Math.random()*400);
+
+    routeCache[d.cs] = d.dep
+      ? {destCity:d.dest.city,destIata:d.dest.iata,schedDepTime:null,origCity:null,origIata:null}
+      : {origCity:d.orig.city,origIata:d.orig.iata,schedArrTime:null,destCity:null,destIata:null};
+
+    const hdg = d.dep
+      ? (55 + i*15 + Math.sin(t*0.25)*6) % 360
+      : ((Math.atan2(airport.lat-lat, airport.lon-lon)*180/Math.PI)+360+90) % 360;
+
     return {
       icao:'demo'+i, callsign:d.cs, country:'United States',
-      lat:d.flat, lon:d.flon,
-      alt:Math.round(d.alt*(0.92+Math.random()*0.16)),
-      onGround:d.dep&&d.alt<300,
-      speed:260+Math.floor(Math.random()*200),
-      heading:Math.floor(Math.random()*360),
-      vertRate:d.vr*(0.85+Math.random()*0.3),
+      lat, lon, alt,
+      onGround: alt < 200,
+      speed: 220 + Math.floor(Math.random()*160),
+      heading: Math.round(hdg),
+      vertRate: d.vr*(0.85+Math.random()*0.3),
     };
   });
 }
@@ -995,7 +1055,7 @@ function demoData(){
 setInterval(()=>{
   countdown--;
   document.getElementById('refreshTimer').textContent=countdown;
-  if(countdown<=0){ countdown=REFRESH; fetchFlights(); }
+  if(countdown<=0){ countdown=isDemo ? 10 : REFRESH; fetchFlights(); }
 },1000);
 
 // ─── INIT ─────────────────────────────────────────────────────────

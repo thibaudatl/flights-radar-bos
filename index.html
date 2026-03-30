@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 3.4 · 2026.03.30</title>
+<title>Boston Logan — Flight Board 3.5 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -419,7 +419,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.4 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.5 · 2026.03.30</div>
 </div>
 
 <script>
@@ -1153,7 +1153,7 @@ function checkOverhead(flights) {
     .filter(f => isCommercial(f))
     .filter(f => {
       const b = bearingToFlight(f);
-      return Math.abs(b - OVERHEAD_BEARING) < 15 && (f.alt||0) > 500 && (f.alt||0) < 15000;
+      return Math.abs(b - OVERHEAD_BEARING) < 15 && (f.alt||0) > 500 && (f.alt||0) < 25000;
     })
     .filter(f => !overheadDismissed.has(f.callsign));
 

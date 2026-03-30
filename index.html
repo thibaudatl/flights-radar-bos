@@ -7,23 +7,23 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
-  html { font-size: 20px; }
+  html { font-size: 22px; }
 
   :root {
     --bg: #0a0a0a;
     --amber: #ffb800;
-    --amber-dim: #7a5800;
+    --amber-dim: #b08020;
     --green: #00e676;
-    --green-dim: #005c2e;
+    --green-dim: #009050;
     --blue: #40c4ff;
-    --blue-dim: #2a6a8a;
+    --blue-dim: #4890b8;
     --red: #ff3d3d;
     --pink: #ff6ec7;
     --pink-dim: #8a1a5a;
     --text: #e8e0d0;
-    --muted: #4a4540;
-    --row-bg: #0d0d0d;
-    --row-alt: #121212;
+    --muted: #787870;
+    --row-bg: #111111;
+    --row-alt: #191919;
     --header-bg: #0c0d0f;
   }
 
@@ -44,7 +44,7 @@
   body::before {
     content: '';
     position: fixed; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
     pointer-events: none;
     z-index: 9000;
   }
@@ -67,7 +67,7 @@
   }
   .version-badge {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem; color: #3a3d42;
+    font-size: 0.65rem; color: #6a6d72;
     letter-spacing: 2px; align-self: flex-end;
     padding-bottom: 4px;
   }
@@ -195,7 +195,7 @@
     display: grid;
     grid-template-columns: 62px 96px 1fr 72px 80px 62px 52px; column-gap: 10px;
     padding: 6px 16px;
-    font-size: 0.65rem; color: #6a6560; letter-spacing: 1px;
+    font-size: 0.65rem; color: #8a8880; letter-spacing: 1px;
     background: #0e0e0e;
     border-bottom: 1px solid #1e1e1e; text-transform: uppercase;
     flex-shrink: 0;
@@ -209,8 +209,8 @@
     border-bottom: 1px solid #161616;
     animation: flipIn 0.35s ease-out;
   }
-  .flight-row:nth-child(even) { background: #161616; }
-  .flight-row:nth-child(odd)  { background: #0d0d0d; }
+  .flight-row:nth-child(even) { background: var(--row-alt); }
+  .flight-row:nth-child(odd)  { background: var(--row-bg); }
   .flight-row:hover { background: #1a1500; }
   .flight-row.imm-dep { background: #180a00 !important; border-left: 3px solid var(--amber); animation: flipIn 0.35s ease-out, pulse-dep 1.2s infinite; }
   .flight-row.imm-arr { background: #00101a !important; border-left: 3px solid var(--blue);  animation: flipIn 0.35s ease-out, pulse-arr 1.2s infinite; }
@@ -222,7 +222,7 @@
   .cell { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Shared */
-  .cell-time              { color: #555; font-size: 0.95rem; font-weight: 700; }
+  .cell-time              { color: #aaa; font-size: 0.95rem; font-weight: 700; }
 
   /* Departures */
   .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.05rem; text-shadow: 0 0 8px rgba(255,184,0,0.5); }
@@ -243,7 +243,7 @@
   /* ALT / DIST */
   .cell-alt  { font-size: 0.78rem; white-space: nowrap; }
   .cell-alt.alt-climb   { color: var(--green); }
-  .cell-alt.alt-level   { color: #888; }
+  .cell-alt.alt-level   { color: #b0b0b0; }
   .cell-alt.alt-descend { color: #ff6060; }
   .dep .cell-dist { color: var(--amber); }
   .arr .cell-dist { color: var(--blue); }
@@ -287,9 +287,9 @@
   @keyframes radar-sweep { 0%,100%{opacity:0.1;transform:scale(0.95)} 50%{opacity:0.3;transform:scale(1.05)} }
 
   /* Bottom bar */
-  .bottom-bar { background:#080808;border-top:2px solid #1e1e1e;padding:9px 28px;display:flex;align-items:center;gap:28px;font-size:0.78rem;color:#4a4a4a;letter-spacing:1.5px;flex-shrink:0;font-family:'Share Tech Mono',monospace; }
-  .bottom-bar .coord { color:#6a5a30;font-family:'Share Tech Mono',monospace; }
-  .refresh-timer { margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#3a3a3a; }
+  .bottom-bar { background:#080808;border-top:2px solid #1e1e1e;padding:9px 28px;display:flex;align-items:center;gap:28px;font-size:0.78rem;color:#888;letter-spacing:1.5px;flex-shrink:0;font-family:'Share Tech Mono',monospace; }
+  .bottom-bar .coord { color:#9a8850;font-family:'Share Tech Mono',monospace; }
+  .refresh-timer { margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#777; }
 
   /* Ticker */
   .ticker { background:#050505;border-top:1px solid #161616;padding:7px 0;overflow:hidden;white-space:nowrap;flex-shrink:0; }
@@ -671,7 +671,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.5.3';
+const VERSION = '1.5.4';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;

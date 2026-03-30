@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 3.0 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 3.1 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -156,12 +156,14 @@
 
   /* ─── BOARDS ─── */
   .boards { display: flex; flex-direction: row; flex: 1; min-height: 0; }
-  .board { border-bottom: none; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .board { border-bottom: none; border-right: 2px solid #222; display: flex; flex-direction: column; flex: 1; min-height: 0; }
   .board:last-child { border-right: none; }
+  .dep { border-top: 3px solid var(--amber); }
+  .arr { border-top: 3px solid var(--blue); }
 
   .board-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 16px; border-bottom: 1px solid #1e1e1e;
+    padding: 12px 16px; border-bottom: 1px solid #1e1e1e;
     flex-shrink: 0;
   }
   .board-label {
@@ -171,31 +173,37 @@
   }
   .dep .board-label { color: var(--amber); }
   .arr .board-label { color: var(--blue); }
-  .board-count { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; }
+  .board-count { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+  .board-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+  .dep .board-dot { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .arr .board-dot { background: var(--blue);  box-shadow: 0 0 6px var(--blue); }
 
   /* ─── COLUMNS ─── */
   .col-headers {
     display: grid;
     grid-template-columns: 62px 82px 1fr 72px 80px 62px; column-gap: 10px;
     padding: 6px 16px;
-    font-size: 0.65rem; color: #7a7068; letter-spacing: 1px;
-    border-bottom: 1px solid #161616; text-transform: uppercase;
+    font-size: 0.65rem; color: #6a6560; letter-spacing: 1px;
+    background: #0e0e0e;
+    border-bottom: 1px solid #1e1e1e; text-transform: uppercase;
     flex-shrink: 0;
   }
   .flight-list { flex: 1; min-height: 0; overflow: hidden; }
   .flight-row {
     display: grid;
     grid-template-columns: 62px 82px 1fr 72px 80px 62px; column-gap: 10px;
-    padding: 0 16px; height: 62px;
+    padding: 0 16px; height: 74px;
     align-items: center;
-    border-bottom: 1px solid #141414;
+    border-bottom: 1px solid #161616;
     animation: flipIn 0.35s ease-out;
   }
-  .flight-row:nth-child(even) { background: var(--row-alt); }
-  .flight-row:nth-child(odd)  { background: var(--row-bg); }
-  .flight-row:hover { background: #161400; }
-  .flight-row.imm-dep { background: #120800 !important; }
-  .flight-row.imm-arr { background: #00090f !important; }
+  .flight-row:nth-child(even) { background: #161616; }
+  .flight-row:nth-child(odd)  { background: #0d0d0d; }
+  .flight-row:hover { background: #1a1500; }
+  .flight-row.imm-dep { background: #180a00 !important; border-left: 3px solid var(--amber); animation: flipIn 0.35s ease-out, pulse-dep 1.2s infinite; }
+  .flight-row.imm-arr { background: #00101a !important; border-left: 3px solid var(--blue);  animation: flipIn 0.35s ease-out, pulse-arr 1.2s infinite; }
+  @keyframes pulse-dep { 0%,100%{border-left-color:var(--amber)} 50%{border-left-color:transparent} }
+  @keyframes pulse-arr { 0%,100%{border-left-color:var(--blue)}  50%{border-left-color:transparent} }
 
   @keyframes flipIn { from{opacity:0;transform:rotateX(-80deg) translateY(-6px)} to{opacity:1;transform:none} }
 
@@ -203,7 +211,7 @@
 
   /* Departures */
   .dep .cell-time         { color: var(--text); font-size: 0.95rem; font-weight: 700; }
-  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 0.95rem; }
+  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 0.95rem; text-shadow: 0 0 8px rgba(255,184,0,0.5); }
   .dep .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .dep .cell-dest-iata    { color: var(--amber); font-size: 0.78rem; display: block; margin-top: 2px; }
   .dep .cell-airline-name { color: var(--amber-dim); font-size: 0.72rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
@@ -212,7 +220,7 @@
 
   /* Arrivals */
   .arr .cell-time         { color: var(--text); font-size: 0.95rem; font-weight: 700; }
-  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 0.95rem; }
+  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 0.95rem; text-shadow: 0 0 8px rgba(64,196,255,0.5); }
   .arr .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .arr .cell-dest-iata    { color: var(--blue); font-size: 0.78rem; display: block; margin-top: 2px; }
   .arr .cell-airline-name { color: var(--blue-dim); font-size: 0.72rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
@@ -353,7 +361,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.0 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.1 · 2026.03.29</div>
 </div>
 
 <script>
@@ -515,10 +523,10 @@
   <div class="board dep">
     <div class="board-header">
       <div class="board-label">↑ DEPARTURES</div>
-      <div class="board-count" id="depCount">--</div>
+      <div class="board-count"><span class="board-dot"></span><span id="depCount">--</span></div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:18px">ALT</span><span>DIST</span>
+      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:44px">ALT</span><span>DIST</span>
     </div>
     <div class="flight-list" id="depList">
       <div class="empty-state"><div class="empty-icon">↑</div><div>LOADING...</div></div>
@@ -528,10 +536,10 @@
   <div class="board arr">
     <div class="board-header">
       <div class="board-label">↓ ARRIVALS</div>
-      <div class="board-count" id="arrCount">--</div>
+      <div class="board-count"><span class="board-dot"></span><span id="arrCount">--</span></div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:18px">ALT</span><span>DIST</span>
+      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:44px">ALT</span><span>DIST</span>
     </div>
     <div class="flight-list" id="arrList">
       <div class="empty-state"><div class="empty-icon">↓</div><div>LOADING...</div></div>

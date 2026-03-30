@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 2.0 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 2.1 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -354,7 +354,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.0 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.1 · 2026.03.29</div>
 </div>
 
 <script>
@@ -779,8 +779,9 @@ async function fetchFlights() {
 async function fetchRoutes(flights) {
   const callsigns = [...new Set(
     flights
+      .filter(f => dist(f) < 60 && AIRLINE_CS_RE.test(f.callsign))
       .map(f => f.callsign)
-      .filter(cs => cs && cs !== '------' && !routeCache[cs] && !noRoute.has(cs) && AIRLINE_CS_RE.test(cs))
+      .filter(cs => !routeCache[cs] && !noRoute.has(cs))
   )];
   const BATCH = 8;
   for (let i = 0; i < callsigns.length; i += BATCH) {
@@ -809,16 +810,16 @@ async function fetchRoutes(flights) {
 function parseState(s){
   const onGround = s.alt_baro==='ground';
   return {
-    icao:   s.hex||'------',
-    callsign:(s.flight||'').trim()||'------',
-    country: s.r||'',
-    lat:     s.lat,
-    lon:     s.lon,
-    alt:     onGround ? 0 : (typeof s.alt_baro==='number' ? Math.round(s.alt_baro) : null),
+    icao:     s.hex||'------',
+    callsign: (s.flight||'').trim()||'------',
+    lat:      s.lat,
+    lon:      s.lon,
+    alt:      onGround ? 0 : (typeof s.alt_baro==='number' ? Math.round(s.alt_baro) : null),
     onGround,
-    speed:   s.gs   ? Math.round(s.gs)   : null,
-    heading: s.track!=null ? Math.round(s.track) : null,
-    vertRate:s.baro_rate||0,
+    speed:    s.gs   ? Math.round(s.gs)   : null,
+    heading:  s.track!=null ? Math.round(s.track) : null,
+    vertRate: s.baro_rate||0,
+    acftType: s.t   || null,   // real aircraft type from ADS-B (e.g. "B738", "A321")
   };
 }
 
@@ -899,7 +900,10 @@ function renderBoards(){
   renderList('depList',deps,true);
   renderList('arrList',arrs,false);
   buildTicker(deps,arrs);
-  checkAlerts(deps,arrs);
+  // Alerts: all commercial BOS flights, not just visible ones
+  const allDeps=allFlights.filter(f=>isDep(f)&&isCommercial(f));
+  const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
+  checkAlerts(allDeps,allArrs);
 }
 
 function renderList(id, flights, isDeparture){
@@ -918,7 +922,8 @@ function renderList(id, flights, isDeparture){
     const al=airline(f.callsign);
     const alName=r?.airlineName || al?.name || '——';
     const alf=r?.airlineIso || al?.f || '';
-    const a=acft(f.callsign,f.icao);
+    const acftLabel=f.acftType || acft(f.callsign,f.icao).t;
+    const a={t:acftLabel, s:''};
     const imm=isDeparture?isImmDep(f):isImmArr(f);
     const rc=imm?(isDeparture?'flight-row imm-dep':'flight-row imm-arr'):'flight-row';
     const look=lookDir(bearingToFlight(f));
@@ -1029,9 +1034,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') dismissAlert
 
 // ─── TICKER ───────────────────────────────────────────────────────
 function buildTicker(deps,arrs){
+  const label=f=>{const r=routeCache[f.callsign]; return r?.iataCs||f.callsign;};
+  const aln=f=>{const r=routeCache[f.callsign]; return r?.airlineName||airline(f.callsign)?.name||'';};
   const items=[
-    ...deps.slice(0,5).map(f=>{const d=destInfo(f,true),al=airline(f.callsign),a=acft(f.callsign,f.icao);return `↑ ${f.callsign} ${al?al.name:''} → ${d.city||d.iata||'—'} · ${a.t}`;}),
-    ...arrs.slice(0,5).map(f=>{const d=destInfo(f,false),al=airline(f.callsign),a=acft(f.callsign,f.icao);return `↓ ${f.callsign} ${al?al.name:''} ← ${d.city||d.iata||'—'} · ${a.t}`;}),
+    ...deps.slice(0,5).map(f=>{const d=destInfo(f,true); return `↑ ${label(f)} ${aln(f)} → ${d.city||d.iata||'—'}`;}),
+    ...arrs.slice(0,5).map(f=>{const d=destInfo(f,false); return `↓ ${label(f)} ${aln(f)} ← ${d.city||d.iata||'—'}`;}),
   ];
   if(items.length) document.getElementById('ticker').textContent='   ✈   '+items.join('   ·   ')+'   ✈   BOSTON LOGAN INTERNATIONAL · KBOS   ✈   ';
 }

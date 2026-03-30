@@ -366,6 +366,13 @@ YOUR APARTMENT<!DOCTYPE html>
   .is-dep .imm-callsign { color: var(--amber); text-shadow: 0 0 80px rgba(255,184,0,0.3); }
   .is-arr .imm-callsign { color: var(--blue);  text-shadow: 0 0 80px rgba(64,196,255,0.3); }
 
+  .imm-airline {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(0.75rem, 1.8vw, 1.1rem);
+    letter-spacing: 4px; text-align: center; opacity: 0.55;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+
   .imm-dest {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(1.8rem, 5vw, 3.6rem);
@@ -573,6 +580,7 @@ YOUR APARTMENT<!DOCTYPE html>
 <div class="imm-overlay" id="immOverlay">
   <div class="imm-badge"    id="immBadge">NOW DEPARTING</div>
   <div class="imm-callsign" id="immCallsign">UAL456</div>
+  <div class="imm-airline"  id="immAirline">United Airlines</div>
   <div class="imm-dest"     id="immDest">→ Los Angeles · LAX</div>
   <div class="imm-meta" id="immMeta">
     <div class="imm-stat"><div class="imm-stat-label">AIRCRAFT</div><div class="imm-stat-value" id="immAcft">—</div></div>
@@ -669,7 +677,7 @@ YOUR APARTMENT<!DOCTYPE html>
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.5.7';
+const VERSION = '1.5.8';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -705,7 +713,7 @@ const NM = 50;           // ADS-B search radius in nautical miles
 let countdown = REFRESH;
 let pollCount = 0;
 let allFlights = [];
-const routeCache = {};
+const routeCache = Object.assign({}, JSON.parse(sessionStorage.getItem('bos_route_cache') || '{}'));
 const noRoute = new Set();   // callsigns confirmed to have no scheduled route
 const dismissed    = new Set(JSON.parse(sessionStorage.getItem('bos_dismissed')    || '[]'));
 const departedLog  = JSON.parse(sessionStorage.getItem('bos_dep_log') || '[]');
@@ -927,13 +935,15 @@ function cacheRoute(cs, fr) {
     airlineIso:  fr.airline?.country?.iso_name || null,
     iataCs:      fr.callsign_iata             || null,
   };
+  try { sessionStorage.setItem('bos_route_cache', JSON.stringify(routeCache)); } catch(e) {}
 }
 
 // Immediately fetch routes for uncached departure-zone flights (every 5s poll)
 const urgentFetching = new Set(); // prevent duplicate in-flight requests
 async function fetchRoutesUrgent(flights) {
   const urgent = flights
-    .filter(f => (classify(f)==='climb' && dist(f)<60 || classify(f)==='approach')
+    .filter(f => (classify(f)==='climb' && dist(f)<60 || classify(f)==='approach'
+               || (f.onGround && dist(f)<5))  // pre-warm cache for ground traffic near KBOS
                && AIRLINE_CS_RE.test(f.callsign)
                && !isRegional(f) && !routeCache[f.callsign] && !noRoute.has(f.callsign)
                && !urgentFetching.has(f.callsign))
@@ -1003,16 +1013,23 @@ function classify(f){
   if(a>20000)        return 'cruise';
   return 'enroute';
 }
+// KBOS runway departure headings (±20° tolerance covers both runway ends in use)
+const BOS_DEP_HEADINGS = [15, 33, 110, 196, 213, 290]; // 04L/R, 09, 14, 22L/R, 27
+function looksLikeBOSDep(f) {
+  if (f.heading == null) return true; // no heading data — don't exclude
+  return BOS_DEP_HEADINGS.some(h => {
+    const diff = Math.abs(((f.heading - h) + 540) % 360 - 180);
+    return diff <= 25;
+  });
+}
 function isDep(f){
   if(classify(f) !== 'climb') return false;
   const d = dist(f);
   const bosConfirmed = isFromBos(f);
   if(bosConfirmed === true)  return d < 60;  // confirmed BOS origin — generous range
   if(bosConfirmed === false) return false;    // confirmed other airport — exclude
-  // Unknown: tight radius + require commercial jet category if available
-  const cat = f.category;
-  if(cat && cat !== 'A3' && cat !== 'A4' && cat !== 'A5') return false;
-  return d < 15;
+  // Unknown: expanded radius + heading check to distinguish BOS from PVD/MHT
+  return d < 30 && looksLikeBOSDep(f);
 }
 function isFromBos(f) {
   const r = routeCache[f.callsign];
@@ -1123,7 +1140,10 @@ function renderBoards(){
   const liveDeps = allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f)&&!dismissed.has(f.callsign));
   const arrs     = allFlights.filter(f=>isArr(f)&&isLikelyCommercial(f)).sort((a,b)=>dist(a)-dist(b));
 
-  // Log any newly detected departures, then build the display list from the log
+  // isImmDep flights are unambiguously BOS departures — log them immediately,
+  // before route data arrives, so they're never missed.
+  allFlights.filter(f=>isImmDep(f)&&isLikelyCommercial(f)).forEach(logDeparture);
+  // Log any other confirmed departures
   liveDeps.forEach(logDeparture);
   const depRows = buildDepRows();
 
@@ -1232,8 +1252,10 @@ function showNextAlert() {
   const dst = d.city ? (d.city + (d.iata ? ' · ' + d.iata : '')) : '——';
   const queuedMore = alertQueue.filter(e => !dismissed.has(e.f.callsign)).length;
 
+  const airlineName = routeCache[f.callsign]?.airlineName || al?.name || '';
   document.getElementById('immBadge').textContent    = isDeparture ? '✈  NOW DEPARTING' : '✈  NOW LANDING';
   document.getElementById('immCallsign').textContent = routeCache[f.callsign]?.iataCs || f.callsign;
+  document.getElementById('immAirline').textContent  = airlineName;
   document.getElementById('immDest').textContent     = dst;
 
   const vr = f.vertRate || 0;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.4.1 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.4.2 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -421,7 +421,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.1 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.2 · 2026.03.30</div>
 </div>
 
 <script>
@@ -550,18 +550,21 @@
     <div class="info-wrap">
       <button class="info-btn" onclick="toggleInfo()" title="Visibility info">i</button>
       <div class="info-popover" id="infoPopover">
-        <h4>Your Visibility Window</h4>
+        <h4>Flight Criteria</h4>
+        <div class="info-row"><span class="info-label">Data source</span><span class="info-val">ADSB.LOL · ADSBDB</span></div>
+        <div class="info-row"><span class="info-label">Poll interval</span><span class="info-val">Every 5s · Board 30s</span></div>
+        <div class="info-row"><span class="info-label">Flights shown</span><span class="info-val amber">Mainline commercial only</span></div>
+        <div class="info-row"><span class="info-label">Excluded</span><span class="info-val">Regional, cargo, private</span></div>
+        <hr class="info-divider">
+        <div class="info-row"><span class="info-label">Departures</span><span class="info-val amber">Climbing · within 20km of BOS</span></div>
+        <div class="info-row"><span class="info-label">Arrivals</span><span class="info-val blue">Approach · within 60km of BOS</span></div>
+        <div class="info-row"><span class="info-label">Imminent dep</span><span class="info-val amber">200–5,000ft · within 5km</span></div>
+        <div class="info-row"><span class="info-label">Imminent arr</span><span class="info-val blue">200–4,000ft · within 6km</span></div>
+        <hr class="info-divider">
         <div class="info-row"><span class="info-label">Your location</span><span class="info-val">42.3662°N  71.0621°W</span></div>
-        <div class="info-row"><span class="info-label">Apartment faces</span><span class="info-val amber">NE</span></div>
-        <div class="info-row"><span class="info-label">Visible arc</span><span class="info-val">010° → 160°</span></div>
-        <div class="info-row"><span class="info-label">Arc covers</span><span class="info-val">NNE · NE · ENE · E · ESE · SE · SSE</span></div>
-        <hr class="info-divider">
         <div class="info-row"><span class="info-label">Airport bearing</span><span class="info-val amber">~085° (due E)</span></div>
-        <div class="info-row"><span class="info-label">Overhead zone</span><span class="info-val blue">065° – 105°</span></div>
-        <div class="info-row"><span class="info-label">Overhead flights</span><span class="info-val blue">shown in red ⚠</span></div>
-        <hr class="info-divider">
-        <div class="info-row"><span class="info-label">Flights hidden</span><span class="info-val">W, NW, SW, S quadrants</span></div>
-        <div class="info-note">Only flights within your visible arc are shown. The LOOK column gives the exact bearing to look from your window.</div>
+        <div class="info-row"><span class="info-label">Overhead zone</span><span class="info-val blue">070° – 100° · pink flash</span></div>
+        <div class="info-note">ALT color: green = climbing · grey = level · red = descending. DIR shows the aircraft's heading.</div>
       </div>
     </div>
     <div class="airport-name">
@@ -574,7 +577,10 @@
       <span class="status-dot" id="statusDot"></span>
       <span id="statusText">CONNECTING</span>
     </div>
-    <div class="clock" id="clock">--:--:--</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+      <div class="clock" id="clock">--:--:--</div>
+      <div id="dateline" style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#4a4a4a;letter-spacing:2px;text-transform:uppercase"></div>
+    </div>
   </div>
 </div>
 
@@ -776,8 +782,11 @@ function acft(cs, icao) {
 
 // ─── CLOCK ────────────────────────────────────────────────────────
 function tick() {
+  const now = new Date();
   document.getElementById('clock').textContent =
-    new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('dateline').textContent =
+    now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}).toUpperCase();
 }
 setInterval(tick,1000); tick();
 

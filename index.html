@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.5.1 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.5.2 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -29,17 +29,37 @@
 
   /* ─── DAY MODE ─── */
   body.day-mode {
-    --bg: #10131a;
-    --text: #dce4f0;
-    --amber: #f0a500;
-    --amber-dim: #6a4a00;
-    --blue: #38b0e8;
-    --blue-dim: #1e5a78;
-    --muted: #3a3d48;
-    --row-bg: #131620;
-    --row-alt: #181c28;
-    --header-bg: #0e1018;
+    --bg: #f0f2f5;
+    --text: #1a1c22;
+    --amber: #c47800;
+    --amber-dim: #8a5200;
+    --green: #00a854;
+    --green-dim: #004d28;
+    --blue: #0078c8;
+    --blue-dim: #004a8a;
+    --red: #cc2200;
+    --pink: #c0006a;
+    --muted: #8a8e99;
+    --row-bg: #ffffff;
+    --row-alt: #f5f6f9;
+    --header-bg: #e4e6eb;
   }
+  body.day-mode .board { border-right-color: #d0d2d8; }
+  body.day-mode .board-header { border-bottom-color: #d0d2d8; }
+  body.day-mode .col-headers { background: #e8eaef; border-bottom-color: #d0d2d8; color: #6a6e7a; }
+  body.day-mode .flight-row { border-bottom-color: #e0e2e8; }
+  body.day-mode .flight-row:hover { background: #fff8e8; }
+  body.day-mode .header { border-bottom-color: #c0c2c8; }
+  body.day-mode .bottom-bar { background: #e4e6eb; border-top-color: #c8cad0; color: #6a6e7a; }
+  body.day-mode .dep .cell-dest-city,
+  body.day-mode .arr .cell-dest-city { color: #1a1c22; }
+  body.day-mode .clock { color: #1a1c22; }
+  body.day-mode #dateline { color: #6a6e7a !important; }
+  body.day-mode .airport-name { color: #4a4e5a; border-color: #b0b2b8; }
+  body.day-mode .airport-name strong { color: #1a1c22; }
+  body.day-mode .status-bar { color: #6a6e7a; }
+  body.day-mode .board-count { color: #6a6e7a; }
+  body.day-mode .board-title { color: #1a1c22; }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -936,7 +956,8 @@ function cacheRoute(cs, fr) {
 const urgentFetching = new Set(); // prevent duplicate in-flight requests
 async function fetchRoutesUrgent(flights) {
   const urgent = flights
-    .filter(f => (isDep(f) || classify(f)==='approach') && AIRLINE_CS_RE.test(f.callsign)
+    .filter(f => (classify(f)==='climb' && dist(f)<60 || classify(f)==='approach')
+               && AIRLINE_CS_RE.test(f.callsign)
                && !isRegional(f) && !routeCache[f.callsign] && !noRoute.has(f.callsign)
                && !urgentFetching.has(f.callsign))
     .map(f => f.callsign);
@@ -990,6 +1011,8 @@ function parseState(s){
     speed:    s.gs   ? Math.round(s.gs)   : null,
     heading:  s.track!=null ? Math.round(s.track) : null,
     vertRate: s.baro_rate||0,
+    geomRate: s.geom_rate||0,  // geometric vertical rate — more accurate near ground
+    category: s.category||null,// ADS-B emitter: A3=large, A4=757, A5=heavy
     acftType: s.t   || null,   // real aircraft type from ADS-B (e.g. "B738", "A321")
   };
 }
@@ -1004,9 +1027,20 @@ function classify(f){
   return 'enroute';
 }
 function isDep(f){
-  const t=classify(f), d=dist(f);
-  if(t==='climb') return d<30;
-  return false;
+  if(classify(f) !== 'climb') return false;
+  const d = dist(f);
+  const bosConfirmed = isFromBos(f);
+  if(bosConfirmed === true)  return d < 60;  // confirmed BOS origin — generous range
+  if(bosConfirmed === false) return false;    // confirmed other airport — exclude
+  // Unknown: tight radius + require commercial jet category if available
+  const cat = f.category;
+  if(cat && cat !== 'A3' && cat !== 'A4' && cat !== 'A5') return false;
+  return d < 15;
+}
+function isFromBos(f) {
+  const r = routeCache[f.callsign];
+  if (!r) return null;
+  return r.origIata === 'BOS' || r.origCity === 'Boston';
 }
 function isBoundForBos(f) {
   const r = routeCache[f.callsign];
@@ -1029,7 +1063,16 @@ function dist(f) {
   return Math.sqrt(dlat*dlat + (dlon*cosLat)*(dlon*cosLat))*111;
 }
 
-function isImmDep(f){ const a=f.alt||0; return classify(f)==='climb'&&a>=200&&a<=5000&&dist(f)<5; }
+function isImmDep(f){
+  if(f.onGround) return false;
+  const a   = f.alt   || 0;
+  const spd = f.speed || 0;
+  const vr  = f.geomRate || f.vertRate || 0;
+  return a < 800       // first ~20-30s of flight only
+      && spd >= 100    // rules out helicopters, slow GA, touch-and-go bounces
+      && vr  > 300     // confirmed powered climb
+      && dist(f) < 4;  // tight to KBOS runway complex
+}
 function isImmArr(f){ const a=f.alt||0; return classify(f)==='approach'&&a>=200&&a<=4000&&dist(f)<6; }
 
 function pill(f, isDeparture){
@@ -1096,7 +1139,7 @@ function renderList(id, flights, isDeparture){
     el.innerHTML=`<div class="empty-state"><div class="empty-icon">${isDeparture?'↑':'↓'}</div><div>NO ${isDeparture?'DEPARTURES':'ARRIVALS'} DETECTED</div><div style="margin-top:8px;font-size:0.6rem;opacity:0.4">MONITORING KBOS AIRSPACE</div></div>`;
     return;
   }
-  el.innerHTML=flights.slice(0,6).map(f=>{
+  el.innerHTML=flights.slice(0,5).map(f=>{
     const t=displayTime(f,isDeparture);
     const r=routeCache[f.callsign];
     const cs=r?.iataCs || f.callsign;

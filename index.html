@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 2.6 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 2.7 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -353,7 +353,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.6 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.7 · 2026.03.29</div>
 </div>
 
 <script>
@@ -838,7 +838,7 @@ function classify(f){
 }
 function isDep(f){
   const t=classify(f), d=dist(f);
-  if(t==='climb') return d<45;
+  if(t==='climb') return d<20;
   return false;
 }
 function isArr(f){

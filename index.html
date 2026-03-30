@@ -746,13 +746,13 @@ async function fetchFlights() {
   const directUrl = `https://api.adsb.lol/v2/lat/${lat}/lon/${lon}/dist/${NM}`;
 
   try {
-    // Try direct first
+    // Try direct first; fall back to CORS proxy if blocked (e.g. file:// origin)
     let res;
     try {
       res = await fetch(directUrl);
+      if (!res.ok) throw new Error(res.status);
     } catch(e1) {
-      // Direct blocked by CORS — try proxy
-      res = await fetch(`https://corsproxy.io/?${encodeURIComponent(directUrl)}`);
+      res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(directUrl)}`);
     }
     if(!res.ok) throw new Error(res.status);
     const data=await res.json();

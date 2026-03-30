@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v5 · 2026.03.29</title>
+<title>Boston Logan — Flight Board v6 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -354,7 +354,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">v5 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">v6 · 2026.03.29</div>
 </div>
 
 <script>
@@ -598,7 +598,14 @@ const REFRESH = 15;
 let countdown = REFRESH;
 let allFlights = [];
 const routeCache = {};
+const noRoute = new Set();   // callsigns confirmed to have no scheduled route
 const dismissed = new Set();
+
+// Standard commercial airline callsign: 3 ICAO letters + 1-4 digits
+const AIRLINE_CS_RE = /^[A-Z]{3}\d{1,4}$/;
+function isCommercial(f) {
+  return AIRLINE_CS_RE.test(f.callsign) && !noRoute.has(f.callsign);
+}
 
 // ─── CITY LOOKUP ──────────────────────────────────────────────────
 const CITY = {
@@ -771,17 +778,19 @@ async function fetchFlights() {
 
 async function fetchRoutes(flights) {
   const callsigns = [...new Set(
-    flights.map(f => f.callsign).filter(cs => cs && cs !== '------' && !routeCache[cs])
+    flights
+      .map(f => f.callsign)
+      .filter(cs => cs && cs !== '------' && !routeCache[cs] && !noRoute.has(cs) && AIRLINE_CS_RE.test(cs))
   )];
   const BATCH = 8;
   for (let i = 0; i < callsigns.length; i += BATCH) {
     await Promise.all(callsigns.slice(i, i + BATCH).map(async cs => {
       try {
         const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
-        if (!res.ok) return;
+        if (!res.ok) { noRoute.add(cs); return; }
         const d = await res.json();
         const fr = d?.response?.flightroute;
-        if (!fr) return;
+        if (!fr) { noRoute.add(cs); return; }
         routeCache[cs] = {
           origCity:  fr.origin?.municipality      || null,
           origIata:  fr.origin?.iata_code         || null,
@@ -865,9 +874,8 @@ function fmt(d){ return d.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit
 function destInfo(f, isDeparture){
   const cs=f.callsign.trim(), r=routeCache[cs];
   if(r){
-    // Skip cached route if destination is BOS (flight already arrived — stale route)
-    if(isDeparture&&(r.destCity||r.destIata)&&r.destIata!=='BOS') return {city:r.destCity||city(r.destIata),iata:r.destIata};
-    if(!isDeparture&&(r.origCity||r.origIata)&&r.origIata!=='BOS') return {city:r.origCity||city(r.origIata),iata:r.origIata};
+    if(isDeparture&&(r.destCity||r.destIata)) return {city:r.destCity||city(r.destIata),iata:r.destIata};
+    if(!isDeparture&&(r.origCity||r.origIata)) return {city:r.origCity||city(r.origIata),iata:r.origIata};
   }
   if(isDeparture){ const inf=inferDest(f.heading); if(inf) return inf; }
   if(!isDeparture){ const inf=inferOrig(f.heading); if(inf) return inf; }
@@ -876,8 +884,8 @@ function destInfo(f, isDeparture){
 
 // ─── RENDER ───────────────────────────────────────────────────────
 function renderBoards(){
-  const deps=allFlights.filter(f=>isDep(f)&&isVisible(f)).sort((a,b)=>dist(a)-dist(b));
-  const arrs=allFlights.filter(f=>isArr(f)&&isVisible(f)).sort((a,b)=>dist(a)-dist(b));
+  const deps=allFlights.filter(f=>isDep(f)&&isVisible(f)&&isCommercial(f)).sort((a,b)=>dist(a)-dist(b));
+  const arrs=allFlights.filter(f=>isArr(f)&&isVisible(f)&&isCommercial(f)).sort((a,b)=>dist(a)-dist(b));
   document.getElementById('depCount').textContent=`${deps.length} FLIGHTS`;
   document.getElementById('arrCount').textContent=`${arrs.length} FLIGHTS`;
   document.getElementById('totalTracked').textContent=allFlights.length;

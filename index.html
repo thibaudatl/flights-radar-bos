@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 3.5 · 2026.03.30</title>
+<title>Boston Logan — Flight Board 3.7 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -200,7 +200,7 @@
   /* ─── COLUMNS ─── */
   .col-headers {
     display: grid;
-    grid-template-columns: 62px 96px 1fr 72px 80px 62px; column-gap: 10px;
+    grid-template-columns: 62px 96px 1fr 72px 80px 62px 52px; column-gap: 10px;
     padding: 6px 16px;
     font-size: 0.65rem; color: #6a6560; letter-spacing: 1px;
     background: #0e0e0e;
@@ -210,7 +210,7 @@
   .flight-list { flex: 1; min-height: 0; overflow: hidden; }
   .flight-row {
     display: grid;
-    grid-template-columns: 62px 96px 1fr 72px 80px 62px; column-gap: 10px;
+    grid-template-columns: 62px 96px 1fr 72px 80px 62px 52px; column-gap: 10px;
     padding: 0 16px; height: 74px;
     align-items: center;
     border-bottom: 1px solid #161616;
@@ -251,12 +251,14 @@
   .cell-alt.alt-climb   { color: var(--green); }
   .cell-alt.alt-level   { color: #888; }
   .cell-alt.alt-descend { color: #ff6060; }
-  .dep .cell-dist { color: var(--amber-dim); font-size: 0.78rem; white-space: nowrap; }
-  .arr .cell-dist { color: var(--blue-dim);  font-size: 0.78rem; white-space: nowrap; }
+  .dep .cell-dist { color: var(--amber-dim); }
+  .arr .cell-dist { color: var(--blue-dim); }
 
-  /* Distance bar */
-  .dist-bar-wrap { position:relative; }
-  .dist-bar { position:absolute; bottom:0; left:0; height:1px; background:currentColor; opacity:0.25; pointer-events:none; }
+  /* Direction */
+  .dep .cell-dir { color: var(--amber-dim); font-size: 0.78rem; white-space: nowrap; }
+  .arr .cell-dir { color: var(--blue-dim);  font-size: 0.78rem; white-space: nowrap; }
+
+  .dep .cell-dist, .arr .cell-dist { font-size: 0.78rem; white-space: nowrap; }
 
   /* Airline country badge — replaces emoji flags */
   .cell-airline-flag {
@@ -419,7 +421,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.5 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.7 · 2026.03.30</div>
 </div>
 
 <script>
@@ -584,7 +586,7 @@
       <div class="board-count"><span class="board-dot"></span><span id="depCount">--</span></div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:44px">ALT</span><span>DIST</span>
+      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:44px">ALT</span><span>DIST</span><span>DIR</span>
     </div>
     <div class="flight-list" id="depList">
       <div class="empty-state"><div class="empty-icon">↑</div><div>LOADING...</div></div>
@@ -597,7 +599,7 @@
       <div class="board-count"><span class="board-dot"></span><span id="arrCount">--</span></div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:44px">ALT</span><span>DIST</span>
+      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span style="text-align:left;margin-left:-6px">AIRCRAFT</span><span style="text-align:right;padding-right:44px">ALT</span><span>DIST</span><span>DIR</span>
     </div>
     <div class="flight-list" id="arrList">
       <div class="empty-state"><div class="empty-icon">↓</div><div>LOADING...</div></div>
@@ -970,7 +972,7 @@ function destInfo(f, isDeparture){
 
 // ─── RENDER ───────────────────────────────────────────────────────
 function renderBoards(){
-  const deps=allFlights.filter(f=>isDep(f)&&isVisible(f)&&isCommercial(f)).sort((a,b)=>dist(a)-dist(b));
+  const deps=allFlights.filter(f=>isDep(f)&&isVisible(f)&&isCommercial(f)&&!dismissed.has(f.callsign)).sort((a,b)=>dist(a)-dist(b));
   const arrs=allFlights.filter(f=>isArr(f)&&isVisible(f)&&isCommercial(f)).sort((a,b)=>dist(a)-dist(b));
   document.getElementById('depCount').textContent=`${deps.length} FLIGHTS`;
   document.getElementById('arrCount').textContent=`${arrs.length} FLIGHTS`;
@@ -1015,7 +1017,8 @@ function renderList(id, flights, isDeparture){
       <span class="cell"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${a.t}</span></span>
       <span class="cell cell-alt ${altCls}">${f.alt!=null?f.alt.toLocaleString()+'ft':'——'}</span>
-      <span class="cell cell-dist dist-bar-wrap" style="color:${distBarColor}">${distMi.toFixed(1)+'mi'}<span class="dist-bar" style="width:${distPct}%;color:${distBarColor}"></span></span>
+      <span class="cell cell-dist" style="color:${distBarColor};--bar:${distPct}%">${distMi.toFixed(1)+'mi'}</span>
+      <span class="cell cell-dir">${f.heading!=null?lookDir(f.heading).card:'——'}</span>
     </div>`;
   }).join('');
 }
@@ -1090,8 +1093,8 @@ function showNextAlert() {
   document.getElementById('immMeta').innerHTML =
     `<em>${alStr}</em><br>${a.t} · ${a.s}<br>ALT ${altStr}  ·  SPD ${spdStr}${queueNote}`;
 
-  // Countdown — 10s per flight
-  autoCountdown = 6;
+  // Countdown — 8s departures, 6s arrivals
+  autoCountdown = isDeparture ? 8 : 6;
   document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s`;
   clearInterval(autoInterval);
   autoInterval = setInterval(() => {
@@ -1157,7 +1160,7 @@ function checkOverhead(flights) {
     })
     .filter(f => !overheadDismissed.has(f.callsign));
 
-  if (!overheadActive && candidates.length > 0) {
+  if (!overheadActive && !alertActive && alertQueue.length === 0 && candidates.length > 0) {
     const f = candidates[0];
     overheadDismissed.add(f.callsign);
     showOverhead(f);

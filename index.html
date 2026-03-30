@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 2.2 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 2.3 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -176,16 +176,17 @@
   /* ─── COLUMNS ─── */
   .col-headers {
     display: grid;
-    grid-template-columns: 70px 90px 1fr 160px 80px 80px;
+    grid-template-columns: 68px 88px 1fr 80px 68px; column-gap: 14px;
     padding: 6px 16px;
-    font-size: 0.75rem; color: #7a7068; letter-spacing: 2px;
+    font-size: 0.65rem; color: #7a7068; letter-spacing: 1px;
     border-bottom: 1px solid #161616; text-transform: uppercase;
     flex-shrink: 0;
   }
+  .col-headers span:nth-child(4) { margin-left: -8px; }
   .flight-list { flex: 1; min-height: 0; overflow: hidden; }
   .flight-row {
     display: grid;
-    grid-template-columns: 70px 90px 1fr 160px 80px 80px;
+    grid-template-columns: 68px 88px 1fr 80px 68px; column-gap: 14px;
     padding: 0 16px; height: 62px;
     align-items: center;
     border-bottom: 1px solid #141414;
@@ -202,22 +203,22 @@
   .cell { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Departures */
-  .dep .cell-time         { color: var(--text); font-size: 1.1rem; font-weight: 700; }
-  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.05rem; }
+  .dep .cell-time         { color: var(--text); font-size: 0.95rem; font-weight: 700; }
+  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 0.95rem; }
   .dep .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .dep .cell-dest-iata    { color: var(--amber); font-size: 0.78rem; display: block; margin-top: 2px; }
-  .dep .cell-airline-name { color: var(--text); font-size: 0.95rem; display: block; letter-spacing: 1px; }
-  .dep .cell-acft-type    { color: var(--amber); font-size: 1rem; display: block; }
-  .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.72rem; display: block; margin-top: 2px; }
+  .dep .cell-airline-name { color: var(--amber-dim); font-size: 0.72rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+  .dep .cell-acft-type    { color: var(--amber); font-size: 0.9rem; display: block; }
+  .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.65rem; display: block; margin-top: 2px; }
 
   /* Arrivals */
-  .arr .cell-time         { color: var(--text); font-size: 1.1rem; font-weight: 700; }
-  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 1.05rem; }
+  .arr .cell-time         { color: var(--text); font-size: 0.95rem; font-weight: 700; }
+  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 0.95rem; }
   .arr .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .arr .cell-dest-iata    { color: var(--blue); font-size: 0.78rem; display: block; margin-top: 2px; }
-  .arr .cell-airline-name { color: var(--text); font-size: 0.95rem; display: block; letter-spacing: 1px; }
-  .arr .cell-acft-type    { color: var(--blue); font-size: 1rem; display: block; }
-  .arr .cell-acft-sub     { color: #235060; font-size: 0.72rem; display: block; margin-top: 2px; }
+  .arr .cell-airline-name { color: var(--blue-dim); font-size: 0.72rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+  .arr .cell-acft-type    { color: var(--blue); font-size: 0.9rem; display: block; }
+  .arr .cell-acft-sub     { color: #235060; font-size: 0.65rem; display: block; margin-top: 2px; }
 
   /* LOOK column */
   .cell-look-dir  { font-size: 1rem; font-weight: 700; display: block; letter-spacing: 2px; }
@@ -354,7 +355,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.2 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.3 · 2026.03.29</div>
 </div>
 
 <script>
@@ -427,7 +428,7 @@
     ctx.restore();
   }
 
-  const SPEED = 0.008;
+  const SPEED = 0.004;
   const TAIL_OFFSET = 18;
 
   function frame() {
@@ -519,7 +520,7 @@
       <div class="board-count" id="depCount">--</div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>AIRLINE</span><span>AIRCRAFT</span><span>LOOK</span>
+      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>AIRCRAFT</span><span>LOOK</span>
     </div>
     <div class="flight-list" id="depList">
       <div class="empty-state"><div class="empty-icon">↑</div><div>LOADING...</div></div>
@@ -532,7 +533,7 @@
       <div class="board-count" id="arrCount">--</div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span>AIRLINE</span><span>AIRCRAFT</span><span>LOOK</span>
+      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span>AIRCRAFT</span><span>LOOK</span>
     </div>
     <div class="flight-list" id="arrList">
       <div class="empty-state"><div class="empty-icon">↓</div><div>LOADING...</div></div>
@@ -931,9 +932,8 @@ function renderList(id, flights, isDeparture){
     return `<div class="${rc}">
       <span class="cell cell-time">${t}</span>
       <span class="cell cell-flight">${cs}</span>
-      <span class="cell"><span class="cell-dest-city">${c}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}</span>
-      <span class="cell"><span class="cell-airline-name">${al?`<span class="cell-airline-flag">${alf}</span>`:''}${alName}</span></span>
-      <span class="cell"><span class="cell-acft-type">${a.t}</span><span class="cell-acft-sub">${a.s}</span></span>
+      <span class="cell"><span class="cell-dest-city">${c}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}<span class="cell-airline-name">${alName}</span></span>
+      <span class="cell"><span class="cell-acft-type">${a.t}</span></span>
       <span class="cell"><span class="cell-look-dir${overheadCls}">${look.isOverhead?'⚠ '+look.card:look.card}</span><span class="cell-look-deg">${look.deg}°</span></span>
     </div>`;
   }).join('');

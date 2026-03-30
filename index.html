@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.3.9 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.4.0 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -421,7 +421,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.3.9 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.0 · 2026.03.30</div>
 </div>
 
 <script>
@@ -664,7 +664,6 @@ function lookDir(bearing) {
   const isOverhead = Math.abs(bearing - OVERHEAD_BEARING) < 20;
   return { card, deg, isOverhead };
 }
-const RANGE = 0.8;
 const REFRESH = 5;       // API poll interval (seconds) — for alert responsiveness
 const RENDER_EVERY = 6;  // re-render board every Nth poll (6 × 5s = 30s)
 let countdown = REFRESH;
@@ -672,7 +671,7 @@ let pollCount = 0;
 let allFlights = [];
 const routeCache = {};
 const noRoute = new Set();   // callsigns confirmed to have no scheduled route
-const dismissed = new Set();
+const dismissed = new Set(JSON.parse(sessionStorage.getItem('bos_dismissed') || '[]'));
 
 // Standard commercial airline callsign: 3 ICAO letters + 1-4 digits
 const AIRLINE_CS_RE = /^[A-Z]{3}\d{1,4}$/;
@@ -856,12 +855,29 @@ async function fetchFlights() {
   updateDailyCounter(allDeps, allArrs);
 }
 
-// Immediately fetch routes for any uncached flight in the departure zone
+// Shared route cache population from adsbdb response
+function cacheRoute(cs, fr) {
+  routeCache[cs] = {
+    origCity:    fr.origin?.municipality      || null,
+    origIata:    fr.origin?.iata_code         || null,
+    destCity:    fr.destination?.municipality || null,
+    destIata:    fr.destination?.iata_code    || null,
+    airlineName: fr.airline?.name             || null,
+    airlineIso:  fr.airline?.country?.iso_name || null,
+    iataCs:      fr.callsign_iata             || null,
+  };
+}
+
+// Immediately fetch routes for uncached departure-zone flights (every 5s poll)
+const urgentFetching = new Set(); // prevent duplicate in-flight requests
 async function fetchRoutesUrgent(flights) {
   const urgent = flights
-    .filter(f => isDep(f) && AIRLINE_CS_RE.test(f.callsign) && !routeCache[f.callsign] && !noRoute.has(f.callsign))
+    .filter(f => isDep(f) && AIRLINE_CS_RE.test(f.callsign)
+               && !routeCache[f.callsign] && !noRoute.has(f.callsign)
+               && !urgentFetching.has(f.callsign))
     .map(f => f.callsign);
   if (!urgent.length) return;
+  urgent.forEach(cs => urgentFetching.add(cs));
   await Promise.all(urgent.map(async cs => {
     try {
       const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
@@ -869,13 +885,9 @@ async function fetchRoutesUrgent(flights) {
       const j = await res.json();
       const fr = j?.response?.flightroute;
       if (!fr) { noRoute.add(cs); return; }
-      routeCache[cs] = {
-        origCity: fr.origin?.municipality||null, origIata: fr.origin?.iata_code||null,
-        destCity: fr.destination?.municipality||null, destIata: fr.destination?.iata_code||null,
-        airlineName: fr.airline?.name||null, airlineIso: fr.airline?.country?.iso_name||null,
-        iataCs: fr.callsign_iata||null,
-      };
+      cacheRoute(cs, fr);
     } catch(e) {}
+    finally { urgentFetching.delete(cs); }
   }));
 }
 
@@ -884,7 +896,7 @@ async function fetchRoutes(flights) {
     flights
       .filter(f => dist(f) < 60 && AIRLINE_CS_RE.test(f.callsign))
       .map(f => f.callsign)
-      .filter(cs => !routeCache[cs] && !noRoute.has(cs))
+      .filter(cs => !routeCache[cs] && !noRoute.has(cs) && !urgentFetching.has(cs))
   )];
   const BATCH = 8;
   for (let i = 0; i < callsigns.length; i += BATCH) {
@@ -895,16 +907,8 @@ async function fetchRoutes(flights) {
         const d = await res.json();
         const fr = d?.response?.flightroute;
         if (!fr) { noRoute.add(cs); return; }
-        routeCache[cs] = {
-          origCity:    fr.origin?.municipality      || null,
-          origIata:    fr.origin?.iata_code         || null,
-          destCity:    fr.destination?.municipality || null,
-          destIata:    fr.destination?.iata_code    || null,
-          airlineName: fr.airline?.name             || null,
-          airlineIso:  fr.airline?.country_iso      || null,
-          iataCs:      fr.callsign_iata             || null,
-        };
-      } catch(e) { /* skip */ }
+        cacheRoute(cs, fr);
+      } catch(e) {}
     }));
     renderBoards();
   }
@@ -946,7 +950,12 @@ function isArr(f){
   if(t==='enroute')  return (f.alt||0)<5000 && d<30;
   return false;
 }
-function dist(f) { const d=(f.lat||airport.lat)-airport.lat,e=(f.lon||airport.lon)-airport.lon; return Math.sqrt(d*d+e*e)*111; }
+function dist(f) {
+  const dlat=(f.lat||airport.lat)-airport.lat;
+  const dlon=(f.lon||airport.lon)-airport.lon;
+  const cosLat=Math.cos(airport.lat*Math.PI/180);
+  return Math.sqrt(dlat*dlat + (dlon*cosLat)*(dlon*cosLat))*111;
+}
 
 function isImmDep(f){ const a=f.alt||0; return classify(f)==='climb'&&a>=200&&a<=5000&&dist(f)<5; }
 function isImmArr(f){ const a=f.alt||0; return classify(f)==='approach'&&a>=200&&a<=4000&&dist(f)<6; }
@@ -1132,7 +1141,7 @@ function dismissAlert(cs) {
   clearInterval(autoInterval);
   document.getElementById('immOverlay').className = 'imm-overlay';
   const toAdd = cs || currentAlertCallsign;
-  if (toAdd) dismissed.add(toAdd);
+  if (toAdd) { dismissed.add(toAdd); sessionStorage.setItem('bos_dismissed', JSON.stringify([...dismissed])); }
   currentAlertCallsign = null;
   // Fire next in queue after a short breath
   setTimeout(() => { if (!alertActive && alertQueue.length > 0) showNextAlert(); }, 600);
@@ -1156,14 +1165,17 @@ applyDayNight();
 setInterval(applyDayNight, 60000);
 
 // ─── DAILY COUNTER ───────────────────────────────────────────────
-const TODAY_KEY = 'bos_today_' + new Date().toISOString().slice(0,10);
+const _d = new Date(); const TODAY_KEY = 'bos_today_' + `${_d.getFullYear()}-${_d.getMonth()}-${_d.getDate()}`;
 let todayCounts = JSON.parse(localStorage.getItem(TODAY_KEY) || '{"dep":0,"arr":0}');
-const overheadSeen = new Set();
-function saveTodayCounts() { localStorage.setItem(TODAY_KEY, JSON.stringify(todayCounts)); }
+const dailySeen = new Set(JSON.parse(sessionStorage.getItem('bos_daily_seen') || '[]'));
+function saveTodayCounts() {
+  localStorage.setItem(TODAY_KEY, JSON.stringify(todayCounts));
+  sessionStorage.setItem('bos_daily_seen', JSON.stringify([...dailySeen]));
+}
 function updateDailyCounter(deps, arrs) {
   let changed = false;
-  deps.filter(isImmDep).forEach(f => { if (!overheadSeen.has('d:'+f.callsign)) { overheadSeen.add('d:'+f.callsign); todayCounts.dep++; changed=true; } });
-  arrs.filter(isImmArr).forEach(f => { if (!overheadSeen.has('a:'+f.callsign)) { overheadSeen.add('a:'+f.callsign); todayCounts.arr++; changed=true; } });
+  deps.filter(isImmDep).forEach(f => { if (!dailySeen.has('d:'+f.callsign)) { dailySeen.add('d:'+f.callsign); todayCounts.dep++; changed=true; } });
+  arrs.filter(isImmArr).forEach(f => { if (!dailySeen.has('a:'+f.callsign)) { dailySeen.add('a:'+f.callsign); todayCounts.arr++; changed=true; } });
   if (changed) saveTodayCounts();
   document.getElementById('depToday').textContent = todayCounts.dep;
   document.getElementById('arrToday').textContent = todayCounts.arr;
@@ -1194,8 +1206,7 @@ function showOverhead(f) {
   overheadActive = true;
   const r = routeCache[f.callsign];
   const cs = r?.iataCs || f.callsign;
-  const isDep = isDep_fn(f);
-  const d = destInfo(f, isDep);
+  const d = destInfo(f, isDep(f));
   const dst = d.city ? (d.city + (d.iata ? ' · ' + d.iata : '')) : '——';
   const al = r?.airlineName || airline(f.callsign)?.name || '—';
   const altStr = f.alt ? `${f.alt.toLocaleString()} ft` : '—';
@@ -1214,7 +1225,6 @@ function dismissOverhead() {
   document.getElementById('overheadOverlay').classList.remove('show');
 }
 
-function isDep_fn(f) { return isDep(f); }
 
 // ─── TICKER ───────────────────────────────────────────────────────
 function buildTicker(deps,arrs){

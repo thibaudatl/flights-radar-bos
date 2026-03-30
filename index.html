@@ -773,22 +773,25 @@ async function fetchRoutes(flights) {
   const callsigns = [...new Set(
     flights.map(f => f.callsign).filter(cs => cs && cs !== '------' && !routeCache[cs])
   )];
-  for (const cs of callsigns) {
-    try {
-      const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
-      if (!res.ok) continue;
-      const d = await res.json();
-      const fr = d?.response?.flightroute;
-      if (!fr) continue;
-      routeCache[cs] = {
-        origCity:  fr.origin?.municipality      || null,
-        origIata:  fr.origin?.iata_code         || null,
-        destCity:  fr.destination?.municipality || null,
-        destIata:  fr.destination?.iata_code    || null,
-      };
-    } catch(e) { /* skip */ }
+  const BATCH = 8;
+  for (let i = 0; i < callsigns.length; i += BATCH) {
+    await Promise.all(callsigns.slice(i, i + BATCH).map(async cs => {
+      try {
+        const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        const fr = d?.response?.flightroute;
+        if (!fr) return;
+        routeCache[cs] = {
+          origCity:  fr.origin?.municipality      || null,
+          origIata:  fr.origin?.iata_code         || null,
+          destCity:  fr.destination?.municipality || null,
+          destIata:  fr.destination?.iata_code    || null,
+        };
+      } catch(e) { /* skip */ }
+    }));
+    renderBoards();
   }
-  renderBoards();
 }
 
 function parseState(s){

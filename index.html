@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 3.3 · 2026.03.30</title>
+<title>Boston Logan — Flight Board 3.4 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -18,11 +18,27 @@
     --blue: #40c4ff;
     --blue-dim: #2a6a8a;
     --red: #ff3d3d;
+    --pink: #ff6ec7;
+    --pink-dim: #8a1a5a;
     --text: #e8e0d0;
     --muted: #4a4540;
     --row-bg: #0d0d0d;
     --row-alt: #121212;
     --header-bg: #0c0d0f;
+  }
+
+  /* ─── DAY MODE ─── */
+  body.day-mode {
+    --bg: #10131a;
+    --text: #dce4f0;
+    --amber: #f0a500;
+    --amber-dim: #6a4a00;
+    --blue: #38b0e8;
+    --blue-dim: #1e5a78;
+    --muted: #3a3d48;
+    --row-bg: #131620;
+    --row-alt: #181c28;
+    --header-bg: #0e1018;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -362,6 +378,38 @@
   }
   .imm-dismiss:hover { color: var(--text); border-color: #555; }
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; }
+
+  /* ─── OVERHEAD OVERLAY ─── */
+  .overhead-overlay {
+    position: fixed; inset: 0; z-index: 490;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s;
+    background: radial-gradient(ellipse at 50% 40%, #2a0030 0%, #12001a 45%, #080008 100%);
+  }
+  .overhead-overlay.show { opacity: 1; }
+  .overhead-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; letter-spacing: 10px;
+    color: var(--pink); animation: badge-blink 1s infinite;
+  }
+  .overhead-callsign {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 15vw, 11rem);
+    letter-spacing: 14px; line-height: 1; text-align: center;
+    color: var(--pink); text-shadow: 0 0 80px rgba(255,110,199,0.4);
+  }
+  .overhead-dest {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    letter-spacing: 8px; color: #cc50a0; text-align: center;
+  }
+  .overhead-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem; letter-spacing: 2px; color: #e8d0f0;
+    text-align: center; line-height: 2;
+  }
 </style>
 </head>
 <body>
@@ -371,7 +419,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.3 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.4 · 2026.03.30</div>
 </div>
 
 <script>
@@ -557,12 +605,20 @@
   </div>
 </div>
 
+<!-- OVERHEAD OVERLAY -->
+<div class="overhead-overlay" id="overheadOverlay">
+  <div class="overhead-title">✈ NOW OVERHEAD</div>
+  <div class="overhead-callsign" id="overheadCallsign">———</div>
+  <div class="overhead-dest" id="overheadDest">———</div>
+  <div class="overhead-meta" id="overheadMeta"></div>
+</div>
+
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <span>BOS · <span class="coord">42.3656°N  71.0096°W</span></span>
-  <span>RADAR RANGE: <span class="coord">±0.8°</span></span>
   <span>TRACKED: <span class="coord" id="totalTracked">--</span></span>
   <span>SOURCE: ADSB.LOL</span>
+  <span>↑ <span class="coord" id="depToday">0</span> · ↓ <span class="coord" id="arrToday">0</span> TODAY</span>
   <span class="refresh-timer">NEXT REFRESH IN <span id="refreshTimer">5</span>s</span>
 </div>
 
@@ -790,12 +846,12 @@ async function fetchFlights() {
   }
   // Always check alerts; only re-render board every 30s
   const doRender = pollCount % RENDER_EVERY === 0;
+  const allDeps=allFlights.filter(f=>isDep(f)&&isCommercial(f));
+  const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
   if(doRender) renderBoards();
-  else {
-    const allDeps=allFlights.filter(f=>isDep(f)&&isCommercial(f));
-    const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
-    checkAlerts(allDeps,allArrs);
-  }
+  else checkAlerts(allDeps,allArrs);
+  checkOverhead(allFlights);
+  updateDailyCounter(allDeps, allArrs);
 }
 
 async function fetchRoutes(flights) {
@@ -1055,7 +1111,84 @@ function dismissAlert(cs) {
   // Fire next in queue after a short breath
   setTimeout(() => { if (!alertActive && alertQueue.length > 0) showNextAlert(); }, 600);
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') dismissAlert(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { dismissAlert(); dismissOverhead(); } });
+
+// ─── DAY / NIGHT PALETTE ─────────────────────────────────────────
+function getSunriseSunset() {
+  // Approximate sunrise/sunset for Boston (lat 42.36)
+  const now = new Date();
+  const doy = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
+  const offset = 10 * Math.sin(2 * Math.PI * (doy - 80) / 365); // seasonal shift
+  return { rise: 6.5 - offset * 0.4, set: 19.5 + offset * 0.4 };
+}
+function applyDayNight() {
+  const h = new Date().getHours() + new Date().getMinutes() / 60;
+  const { rise, set } = getSunriseSunset();
+  document.body.classList.toggle('day-mode', h >= rise && h < set);
+}
+applyDayNight();
+setInterval(applyDayNight, 60000);
+
+// ─── DAILY COUNTER ───────────────────────────────────────────────
+const TODAY_KEY = 'bos_today_' + new Date().toISOString().slice(0,10);
+let todayCounts = JSON.parse(localStorage.getItem(TODAY_KEY) || '{"dep":0,"arr":0}');
+const overheadSeen = new Set();
+function saveTodayCounts() { localStorage.setItem(TODAY_KEY, JSON.stringify(todayCounts)); }
+function updateDailyCounter(deps, arrs) {
+  let changed = false;
+  deps.filter(isImmDep).forEach(f => { if (!overheadSeen.has('d:'+f.callsign)) { overheadSeen.add('d:'+f.callsign); todayCounts.dep++; changed=true; } });
+  arrs.filter(isImmArr).forEach(f => { if (!overheadSeen.has('a:'+f.callsign)) { overheadSeen.add('a:'+f.callsign); todayCounts.arr++; changed=true; } });
+  if (changed) saveTodayCounts();
+  document.getElementById('depToday').textContent = todayCounts.dep;
+  document.getElementById('arrToday').textContent = todayCounts.arr;
+}
+
+// ─── OVERHEAD FLASH ──────────────────────────────────────────────
+const overheadDismissed = new Set();
+let overheadActive = false;
+let overheadTimer = null;
+
+function checkOverhead(flights) {
+  const candidates = flights
+    .filter(f => isCommercial(f))
+    .filter(f => {
+      const b = bearingToFlight(f);
+      return Math.abs(b - OVERHEAD_BEARING) < 15 && (f.alt||0) > 500 && (f.alt||0) < 15000;
+    })
+    .filter(f => !overheadDismissed.has(f.callsign));
+
+  if (!overheadActive && candidates.length > 0) {
+    const f = candidates[0];
+    overheadDismissed.add(f.callsign);
+    showOverhead(f);
+  }
+}
+
+function showOverhead(f) {
+  overheadActive = true;
+  const r = routeCache[f.callsign];
+  const cs = r?.iataCs || f.callsign;
+  const isDep = isDep_fn(f);
+  const d = destInfo(f, isDep);
+  const dst = d.city ? (d.city + (d.iata ? ' · ' + d.iata : '')) : '——';
+  const al = r?.airlineName || airline(f.callsign)?.name || '—';
+  const altStr = f.alt ? `${f.alt.toLocaleString()} ft` : '—';
+
+  document.getElementById('overheadCallsign').textContent = cs;
+  document.getElementById('overheadDest').textContent = dst.toUpperCase();
+  document.getElementById('overheadMeta').textContent = `${al}  ·  ALT ${altStr}`;
+  document.getElementById('overheadOverlay').classList.add('show');
+
+  clearTimeout(overheadTimer);
+  overheadTimer = setTimeout(dismissOverhead, 8000);
+}
+
+function dismissOverhead() {
+  overheadActive = false;
+  document.getElementById('overheadOverlay').classList.remove('show');
+}
+
+function isDep_fn(f) { return isDep(f); }
 
 // ─── TICKER ───────────────────────────────────────────────────────
 function buildTicker(deps,arrs){

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.4.8 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.4.9 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -382,11 +382,18 @@
 
   .imm-meta {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 1.4rem; letter-spacing: 2px; color: #ffffff;
-    text-align: center; line-height: 2.2;
+    font-size: 1.1rem; letter-spacing: 2px;
+    text-align: center; line-height: 1;
+    display: flex; gap: 32px; align-items: flex-start; justify-content: center;
   }
-  .is-dep .imm-meta em { color: #ffffff; font-style: normal; }
-  .is-arr .imm-meta em { color: #ffffff; font-style: normal; }
+  .imm-stat { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .imm-stat-label { font-size: 0.5rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; }
+  .imm-stat-value { font-size: 1.3rem; letter-spacing: 2px; }
+  .is-dep .imm-stat-value { color: var(--amber); }
+  .is-arr .imm-stat-value { color: var(--blue); }
+  .imm-stat-value.alt-climb   { color: var(--green) !important; }
+  .imm-stat-value.alt-descend { color: #ff6060 !important; }
+  .imm-stat-value.alt-level   { color: #888 !important; }
 
   .imm-dismiss {
     font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 3px;
@@ -436,7 +443,7 @@
   <div class="loading-title" id="flapBoard"></div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.8 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.9 · 2026.03.30</div>
 </div>
 
 <script>
@@ -596,7 +603,13 @@
   <div class="imm-badge"    id="immBadge">NOW DEPARTING</div>
   <div class="imm-callsign" id="immCallsign">UAL456</div>
   <div class="imm-dest"     id="immDest">→ Los Angeles · LAX</div>
-  <div class="imm-meta"     id="immMeta"></div>
+  <div class="imm-meta" id="immMeta">
+    <div class="imm-stat"><div class="imm-stat-label">AIRCRAFT</div><div class="imm-stat-value" id="immAcft">—</div></div>
+    <div class="imm-stat"><div class="imm-stat-label">ALTITUDE</div><div class="imm-stat-value" id="immAlt">—</div></div>
+    <div class="imm-stat"><div class="imm-stat-label">SPEED</div><div class="imm-stat-value" id="immSpd">—</div></div>
+    <div class="imm-stat"><div class="imm-stat-label">DISTANCE</div><div class="imm-stat-value" id="immDist">—</div></div>
+    <div class="imm-stat"><div class="imm-stat-label">HEADING</div><div class="imm-stat-value" id="immDir">—</div></div>
+  </div>
   <button class="imm-dismiss" onclick="dismissAlert()">DISMISS · ESC</button>
   <div class="imm-auto" id="immAuto">AUTO-DISMISS IN 15s</div>
 </div>
@@ -1211,13 +1224,24 @@ function showNextAlert() {
   document.getElementById('immCallsign').textContent = routeCache[f.callsign]?.iataCs || f.callsign;
   document.getElementById('immDest').textContent     = dst;
 
+  const vr = f.vertRate || 0;
+  const altCls = vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
+  const altStr  = f.alt   ? `${f.alt.toLocaleString()}ft` : '—';
+  const spdStr  = f.speed ? `${f.speed}kts` : '—';
+  const distStr = `${(dist(f) * 0.621371).toFixed(1)}mi`;
+  const dirStr  = f.heading != null ? lookDir(f.heading).card : '—';
+  const acftStr = f.acftType || a.t || '—';
 
-  const alStr  = routeCache[f.callsign]?.airlineName || al?.name || '—';
-  const altStr = f.alt   ? `${f.alt.toLocaleString()} ft` : '—';
-  const spdStr = f.speed ? `${f.speed} kts` : '—';
-  const queueNote = queuedMore > 0 ? `<br><span style="color:#555;font-size:0.7rem">+${queuedMore} MORE IN QUEUE</span>` : '';
-  document.getElementById('immMeta').innerHTML =
-    `<em>${alStr}</em><br>${a.t} · ${a.s}<br>ALT ${altStr}  ·  SPD ${spdStr}${queueNote}`;
+  document.getElementById('immAcft').textContent  = acftStr;
+  document.getElementById('immAlt').textContent   = altStr;
+  document.getElementById('immAlt').className     = `imm-stat-value ${altCls}`;
+  document.getElementById('immSpd').textContent   = spdStr;
+  document.getElementById('immDist').textContent  = distStr;
+  document.getElementById('immDir').textContent   = dirStr;
+
+  if (queuedMore > 0) {
+    document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s  ·  +${queuedMore} IN QUEUE`;
+  }
 
   // Countdown — 8s departures, 6s arrivals
   autoCountdown = isDeparture ? 8 : 6;

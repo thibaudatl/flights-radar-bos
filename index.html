@@ -855,8 +855,9 @@ function fmt(d){ return d.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit
 function destInfo(f, isDeparture){
   const cs=f.callsign.trim(), r=routeCache[cs];
   if(r){
-    if(isDeparture&&(r.destCity||r.destIata)) return {city:r.destCity||city(r.destIata),iata:r.destIata};
-    if(!isDeparture&&(r.origCity||r.origIata)) return {city:r.origCity||city(r.origIata),iata:r.origIata};
+    // Skip cached route if destination is BOS (flight already arrived — stale route)
+    if(isDeparture&&(r.destCity||r.destIata)&&r.destIata!=='BOS') return {city:r.destCity||city(r.destIata),iata:r.destIata};
+    if(!isDeparture&&(r.origCity||r.origIata)&&r.origIata!=='BOS') return {city:r.origCity||city(r.origIata),iata:r.origIata};
   }
   if(isDeparture){ const inf=inferDest(f.heading); if(inf) return inf; }
   if(!isDeparture){ const inf=inferOrig(f.heading); if(inf) return inf; }

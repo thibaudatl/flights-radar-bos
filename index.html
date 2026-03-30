@@ -546,7 +546,7 @@
   <span>RADAR RANGE: <span class="coord">±0.8°</span></span>
   <span>TRACKED: <span class="coord" id="totalTracked">--</span></span>
   <span>SOURCE: ADSB.LOL</span>
-  <span class="refresh-timer">NEXT REFRESH IN <span id="refreshTimer">30</span>s</span>
+  <span class="refresh-timer">NEXT REFRESH IN <span id="refreshTimer">15</span>s</span>
 </div>
 
 <!-- TICKER -->
@@ -594,7 +594,7 @@ function lookDir(bearing) {
   return { card, deg, isOverhead };
 }
 const RANGE = 0.8;
-const REFRESH = 30;
+const REFRESH = 15;
 let countdown = REFRESH;
 let allFlights = [];
 const routeCache = {};
@@ -823,8 +823,8 @@ function isDep(f){ const t=classify(f); return t==='climb'||t==='ground'; }
 function isArr(f){ const t=classify(f); return t==='approach'||(t==='enroute'&&(f.alt||0)<5000); }
 function dist(f) { const d=(f.lat||airport.lat)-airport.lat,e=(f.lon||airport.lon)-airport.lon; return Math.sqrt(d*d+e*e)*111; }
 
-function isImmDep(f){ const a=f.alt||0; return classify(f)==='climb'&&a>=200&&a<=2500&&dist(f)<3; }
-function isImmArr(f){ const a=f.alt||0; return classify(f)==='approach'&&a>=300&&a<=2500&&dist(f)<4; }
+function isImmDep(f){ const a=f.alt||0; return classify(f)==='climb'&&a>=200&&a<=5000&&dist(f)<5; }
+function isImmArr(f){ const a=f.alt||0; return classify(f)==='approach'&&a>=200&&a<=4000&&dist(f)<6; }
 
 function pill(f, isDeparture){
   if(isDeparture&&isImmDep(f)) return ['DEPARTING','s-imm-dep'];

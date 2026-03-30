@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.5.3 · 2026.03.30</title>
+<title>Boston Logan — Flight Board</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -414,7 +414,7 @@
   <div class="loading-title" id="flapBoard"></div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.5.2 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;" id="loadingVersion"></div>
 </div>
 
 <script>
@@ -589,7 +589,7 @@
 <div class="header">
   <div class="header-left">
     <div class="board-title">FLIGHT BOARD</div>
-    <div class="version-badge">v1.5.3</div>
+    <div class="version-badge" id="versionBadge"></div>
     <div class="info-wrap">
       <button class="info-btn" id="infoBtn" title="Visibility info">i</button>
       <div class="info-popover" id="infoPopover">
@@ -671,6 +671,12 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
+const VERSION = '1.5.3';
+
+document.title = `Boston Logan — Flight Board v${VERSION}`;
+document.getElementById('versionBadge').textContent = `v${VERSION}`;
+document.getElementById('loadingVersion').textContent = `${VERSION} · 2026.03.30`;
+
 const airport = { icao:'KBOS', lat:42.3656, lon:-71.0096 };
 
 // ─── YOUR APARTMENT ───────────────────────────────────────────────

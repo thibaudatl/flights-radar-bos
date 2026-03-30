@@ -676,7 +676,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.0';
+const VERSION = '1.6.1';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -721,26 +721,8 @@ const departedLog  = JSON.parse(sessionStorage.getItem('bos_dep_log') || '[]');
 // Standard commercial airline callsign: 3 ICAO letters + 1-4 digits
 const AIRLINE_CS_RE = /^[A-Z]{3}\d{1,4}$/;
 
-// Regional/commuter carriers operating at BOS — excluded from board and alerts
-const REGIONAL_OPS = new Set([
-  'RPA', // Republic Airways (United Express / American Eagle)
-  'SKW', // SkyWest (United Express / Delta Connection)
-  'EDV', // Endeavor Air (Delta Connection)
-  'JIA', // PSA Airlines (American Eagle)
-  'PDT', // Piedmont Airlines (American Eagle)
-  'ASH', // Mesa Airlines (United Express)
-  'UCA', // CommutAir (United Express)
-  'KAP', // Cape Air
-  'EJA', // NetJets (private)
-  'FLG', // Frontier (regional ops)
-  'GJT', // Great Lakes Airlines
-  'SWQ', // Swiftair
-  'OPT', // Southern Airways Express
-]);
-
-function isRegional(f) { return REGIONAL_OPS.has(f.callsign.slice(0,3)); }
-function isLikelyCommercial(f) { return AIRLINE_CS_RE.test(f.callsign) && !isRegional(f); }
-function isCommercial(f) { return AIRLINE_CS_RE.test(f.callsign) && !noRoute.has(f.callsign) && !isRegional(f); }
+function isLikelyCommercial(f) { return AIRLINE_CS_RE.test(f.callsign); }
+function isCommercial(f) { return AIRLINE_CS_RE.test(f.callsign) && !noRoute.has(f.callsign); }
 
 // ─── CITY LOOKUP ──────────────────────────────────────────────────
 const CITY = {
@@ -946,7 +928,7 @@ async function fetchRoutesUrgent(flights) {
     .filter(f => (classify(f)==='climb' && dist(f)<60 || classify(f)==='approach'
                || (f.onGround && dist(f)<5))  // pre-warm cache for ground traffic near KBOS
                && AIRLINE_CS_RE.test(f.callsign)
-               && !isRegional(f) && !routeCache[f.callsign] && !noRoute.has(f.callsign)
+               && !routeCache[f.callsign] && !noRoute.has(f.callsign)
                && !urgentFetching.has(f.callsign))
     .map(f => f.callsign);
   if (!urgent.length) return;

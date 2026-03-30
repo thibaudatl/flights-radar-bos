@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 3.8 · 2026.03.30</title>
+<title>Boston Logan — Flight Board 3.9 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -421,7 +421,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.8 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.9 · 2026.03.30</div>
 </div>
 
 <script>
@@ -839,6 +839,7 @@ async function fetchFlights() {
     isDemo = false;
     setStatus('live');
     if(pollCount % RENDER_EVERY === 0) fetchRoutes(allFlights);
+    fetchRoutesUrgent(allFlights);
   } catch(e) {
     console.warn('Live feed unavailable, using demo data:', e.message);
     isDemo = true;
@@ -853,6 +854,29 @@ async function fetchFlights() {
   else checkAlerts(allDeps,allArrs);
   checkOverhead(allFlights);
   updateDailyCounter(allDeps, allArrs);
+}
+
+// Immediately fetch routes for any uncached flight in the departure zone
+async function fetchRoutesUrgent(flights) {
+  const urgent = flights
+    .filter(f => isDep(f) && AIRLINE_CS_RE.test(f.callsign) && !routeCache[f.callsign] && !noRoute.has(f.callsign))
+    .map(f => f.callsign);
+  if (!urgent.length) return;
+  await Promise.all(urgent.map(async cs => {
+    try {
+      const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
+      if (!res.ok) { noRoute.add(cs); return; }
+      const j = await res.json();
+      const fr = j?.response?.flightroute;
+      if (!fr) { noRoute.add(cs); return; }
+      routeCache[cs] = {
+        origCity: fr.origin?.municipality||null, origIata: fr.origin?.iata_code||null,
+        destCity: fr.destination?.municipality||null, destIata: fr.destination?.iata_code||null,
+        airlineName: fr.airline?.name||null, airlineIso: fr.airline?.country?.iso_name||null,
+        iataCs: fr.callsign_iata||null,
+      };
+    } catch(e) {}
+  }));
 }
 
 async function fetchRoutes(flights) {

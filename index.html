@@ -213,6 +213,7 @@ YOUR APARTMENT<!DOCTYPE html>
   .flight-row:hover { background: #1a1500; }
   .flight-row.imm-dep { background: #180a00 !important; border-left: 3px solid var(--amber); animation: flipIn 0.35s ease-out, pulse-dep 1.2s infinite; }
   .flight-row.imm-arr { background: #00101a !important; border-left: 3px solid var(--blue);  animation: flipIn 0.35s ease-out, pulse-arr 1.2s infinite; }
+  .flight-row.ghost   { opacity: 0.55; }
   @keyframes pulse-dep { 0%,100%{border-left-color:var(--amber)} 50%{border-left-color:transparent} }
   @keyframes pulse-arr { 0%,100%{border-left-color:var(--blue)}  50%{border-left-color:transparent} }
 
@@ -668,7 +669,7 @@ YOUR APARTMENT<!DOCTYPE html>
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.5.6';
+const VERSION = '1.5.7';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -706,7 +707,9 @@ let pollCount = 0;
 let allFlights = [];
 const routeCache = {};
 const noRoute = new Set();   // callsigns confirmed to have no scheduled route
-const dismissed = new Set(JSON.parse(sessionStorage.getItem('bos_dismissed') || '[]'));
+const dismissed    = new Set(JSON.parse(sessionStorage.getItem('bos_dismissed')    || '[]'));
+const departedLog  = JSON.parse(sessionStorage.getItem('bos_dep_log') || '[]');
+// Each entry: { callsign, depTime } — depTime is pre-formatted HH:MM string
 
 // Standard commercial airline callsign: 3 ICAO letters + 1-4 digits
 const AIRLINE_CS_RE = /^[A-Z]{3}\d{1,4}$/;
@@ -1091,17 +1094,46 @@ function destInfo(f, isDeparture){
   return {city:'——',iata:null};
 }
 
+// ─── DEPARTURE LOG ────────────────────────────────────────────────
+// Records the last 5 confirmed BOS departures this session so they
+// remain visible on the board even after climbing out of ADS-B range.
+function logDeparture(f) {
+  if (departedLog.some(e => e.callsign === f.callsign)) return;
+  departedLog.unshift({ callsign: f.callsign, depTime: displayTime(f, true) });
+  if (departedLog.length > 5) departedLog.splice(5);
+  sessionStorage.setItem('bos_dep_log', JSON.stringify(departedLog));
+}
+
+// Build the departure display list: live flight object when in range,
+// ghost stub (lat/lon/alt/speed null) when the plane has flown out.
+function buildDepRows() {
+  const liveMap = new Map(allFlights.map(f => [f.callsign, f]));
+  return departedLog.slice(0, 5).map(entry =>
+    liveMap.get(entry.callsign) || {
+      callsign: entry.callsign,
+      _depTime: entry.depTime,
+      lat: null, lon: null, alt: null, speed: null,
+      heading: null, vertRate: 0, icao: '------',
+    }
+  );
+}
+
 // ─── RENDER ───────────────────────────────────────────────────────
 function renderBoards(){
-  const deps=allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f)&&!dismissed.has(f.callsign)).sort((a,b)=>dist(a)-dist(b));
-  const arrs=allFlights.filter(f=>isArr(f)&&isLikelyCommercial(f)).sort((a,b)=>dist(a)-dist(b));
-  document.getElementById('depCount').textContent=`${deps.length} FLIGHTS`;
+  const liveDeps = allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f)&&!dismissed.has(f.callsign));
+  const arrs     = allFlights.filter(f=>isArr(f)&&isLikelyCommercial(f)).sort((a,b)=>dist(a)-dist(b));
+
+  // Log any newly detected departures, then build the display list from the log
+  liveDeps.forEach(logDeparture);
+  const depRows = buildDepRows();
+
+  document.getElementById('depCount').textContent=`${depRows.length} FLIGHTS`;
   document.getElementById('arrCount').textContent=`${arrs.length} FLIGHTS`;
   document.getElementById('totalTracked').textContent=allFlights.length;
-  renderList('depList',deps,true);
-  renderList('arrList',arrs,false);
-  buildTicker(deps,arrs);
-  // Alerts: all commercial BOS flights, not just visible ones
+  renderList('depList', depRows, true);
+  renderList('arrList', arrs, false);
+  buildTicker(depRows.filter(f=>f.lat!=null), arrs);
+  // Alerts: use live flights only
   const allDeps=allFlights.filter(f=>isDep(f)&&isCommercial(f));
   const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
   checkAlerts(allDeps,allArrs);
@@ -1114,30 +1146,30 @@ function renderList(id, flights, isDeparture){
     return;
   }
   el.innerHTML=flights.slice(0,5).map(f=>{
-    const t=displayTime(f,isDeparture);
-    const r=routeCache[f.callsign];
-    const cs=r?.iataCs || f.callsign;
-    const d=destInfo(f,isDeparture);
-    const c=(d.city||'——');        // full city name — no slice
-    const ia=d.iata||'';
-    const al=airline(f.callsign);
-    const alName=r?.airlineName || al?.name || '——';
-    const alf=r?.airlineIso || al?.f || '';
+    const ghost = f.lat == null;  // flight has left ADS-B range
+    const t = f._depTime || displayTime(f, isDeparture);
+    const r = routeCache[f.callsign];
+    const cs = r?.iataCs || f.callsign;
+    const d = destInfo(f, isDeparture);
+    const c = (d.city || '——');
+    const ia = d.iata || '';
+    const al = airline(f.callsign);
+    const alName = r?.airlineName || al?.name || '——';
     const acftLabel = f.acftType || acft(f.callsign, f.icao).t;
     const imm = isDeparture ? isImmDep(f) : isImmArr(f);
     const bearing = bearingToFlight(f);
     const isOverhead = bearing != null && Math.abs(bearing - OVERHEAD_BEARING) < 15;
-    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : (isOverhead ? 'flight-row overhead' : 'flight-row');
+    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : (isOverhead ? 'flight-row overhead' : (ghost ? 'flight-row ghost' : 'flight-row'));
     const vr = f.vertRate || 0;
     const altCls = vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
-    const distMi = dist(f) * 0.621371;
+    const distMi = ghost ? null : dist(f) * 0.621371;
     return `<div class="${rc}">
       <span class="cell cell-time">${t}</span>
       <span class="cell cell-flight">${cs}</span>
       <span class="cell"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia ? `<span class="cell-dest-iata">${ia}</span>` : ''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${acftLabel}</span></span>
       <span class="cell cell-alt ${altCls}">${f.alt != null ? f.alt.toLocaleString() + 'ft' : '——'}</span>
-      <span class="cell cell-dist">${distMi.toFixed(1) + 'mi'}</span>
+      <span class="cell cell-dist">${distMi != null ? distMi.toFixed(1) + 'mi' : '——'}</span>
       <span class="cell cell-dir">${f.heading != null ? lookDir(f.heading).card : '——'}</span>
     </div>`;
   }).join('');

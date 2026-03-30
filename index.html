@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.4.9 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.5.0 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -403,37 +403,9 @@
   .imm-dismiss:hover { color: var(--text); border-color: #555; }
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; }
 
-  /* ─── OVERHEAD OVERLAY ─── */
-  .overhead-overlay {
-    position: fixed; inset: 0; z-index: 490;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 20px;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.5s;
-    background: radial-gradient(ellipse at 50% 40%, #2a0030 0%, #12001a 45%, #080008 100%);
-  }
-  .overhead-overlay.show { opacity: 1; }
-  .overhead-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem; letter-spacing: 10px;
-    color: var(--pink); animation: badge-blink 1s infinite;
-  }
-  .overhead-callsign {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(4rem, 15vw, 11rem);
-    letter-spacing: 14px; line-height: 1; text-align: center;
-    color: var(--pink); text-shadow: 0 0 80px rgba(255,110,199,0.4);
-  }
-  .overhead-dest {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(1.6rem, 4vw, 3rem);
-    letter-spacing: 8px; color: #cc50a0; text-align: center;
-  }
-  .overhead-meta {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 1.2rem; letter-spacing: 2px; color: #e8d0f0;
-    text-align: center; line-height: 2;
-  }
+  /* ─── OVERHEAD ROW HIGHLIGHT ─── */
+  .flight-row.overhead { border-left: 3px solid var(--pink); }
+  .flight-row.overhead .cell-flight { color: var(--pink) !important; text-shadow: 0 0 8px rgba(255,110,199,0.5) !important; }
 </style>
 </head>
 <body>
@@ -443,7 +415,7 @@
   <div class="loading-title" id="flapBoard"></div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.9 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.5.0 · 2026.03.30</div>
 </div>
 
 <script>
@@ -684,13 +656,6 @@
   </div>
 </div>
 
-<!-- OVERHEAD OVERLAY -->
-<div class="overhead-overlay" id="overheadOverlay">
-  <div class="overhead-title">✈ NOW OVERHEAD</div>
-  <div class="overhead-callsign" id="overheadCallsign">———</div>
-  <div class="overhead-dest" id="overheadDest">———</div>
-  <div class="overhead-meta" id="overheadMeta"></div>
-</div>
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
@@ -950,7 +915,7 @@ async function fetchFlights() {
   const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
   if(doRender) renderBoards();
   else checkAlerts(allDeps,allArrs);
-  checkOverhead(allFlights);
+
   updateDailyCounter(allDeps, allArrs);
 }
 
@@ -1144,7 +1109,9 @@ function renderList(id, flights, isDeparture){
     const acftLabel=f.acftType || acft(f.callsign,f.icao).t;
     const a={t:acftLabel, s:''};
     const imm=isDeparture?isImmDep(f):isImmArr(f);
-    const rc=imm?(isDeparture?'flight-row imm-dep':'flight-row imm-arr'):'flight-row';
+    const bearing=bearingToFlight(f);
+    const isOverhead=bearing!=null&&Math.abs(bearing-OVERHEAD_BEARING)<15;
+    const rc=imm?(isDeparture?'flight-row imm-dep':'flight-row imm-arr'):(isOverhead?'flight-row overhead':'flight-row');
     const vr=f.vertRate||0;
     const altCls=vr>200?'alt-climb':vr<-200?'alt-descend':'alt-level';
     const distMi=dist(f)*0.621371;
@@ -1264,7 +1231,7 @@ function dismissAlert(cs) {
   // Fire next in queue after a short breath
   setTimeout(() => { if (!alertActive && alertQueue.length > 0) showNextAlert(); }, 600);
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { dismissAlert(); dismissOverhead(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') dismissAlert(); });
 
 // ─── DAY / NIGHT PALETTE ─────────────────────────────────────────
 function getSunriseSunset() {
@@ -1299,49 +1266,6 @@ function updateDailyCounter(deps, arrs) {
   document.getElementById('arrToday').textContent = todayCounts.arr;
 }
 
-// ─── OVERHEAD FLASH ──────────────────────────────────────────────
-const overheadDismissed = new Set();
-let overheadActive = false;
-let overheadTimer = null;
-
-function checkOverhead(flights) {
-  const candidates = flights
-    .filter(f => isCommercial(f))
-    .filter(f => {
-      const b = bearingToFlight(f);
-      return Math.abs(b - OVERHEAD_BEARING) < 15 && (f.alt||0) > 500 && (f.alt||0) < 25000;
-    })
-    .filter(f => !overheadDismissed.has(f.callsign));
-
-  if (!overheadActive && !alertActive && alertQueue.length === 0 && candidates.length > 0) {
-    const f = candidates[0];
-    overheadDismissed.add(f.callsign);
-    showOverhead(f);
-  }
-}
-
-function showOverhead(f) {
-  overheadActive = true;
-  const r = routeCache[f.callsign];
-  const cs = r?.iataCs || f.callsign;
-  const d = destInfo(f, isDep(f));
-  const dst = d.city ? (d.city + (d.iata ? ' · ' + d.iata : '')) : '——';
-  const al = r?.airlineName || airline(f.callsign)?.name || '—';
-  const altStr = f.alt ? `${f.alt.toLocaleString()} ft` : '—';
-
-  document.getElementById('overheadCallsign').textContent = cs;
-  document.getElementById('overheadDest').textContent = dst.toUpperCase();
-  document.getElementById('overheadMeta').textContent = `${al}  ·  ALT ${altStr}`;
-  document.getElementById('overheadOverlay').classList.add('show');
-
-  clearTimeout(overheadTimer);
-  overheadTimer = setTimeout(dismissOverhead, 8000);
-}
-
-function dismissOverhead() {
-  overheadActive = false;
-  document.getElementById('overheadOverlay').classList.remove('show');
-}
 
 
 // ─── TICKER ───────────────────────────────────────────────────────

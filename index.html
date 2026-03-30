@@ -27,39 +27,6 @@
     --header-bg: #0c0d0f;
   }
 
-  /* ─── DAY MODE ─── */
-  body.day-mode {
-    --bg: #f0f2f5;
-    --text: #1a1c22;
-    --amber: #c47800;
-    --amber-dim: #8a5200;
-    --green: #00a854;
-    --green-dim: #004d28;
-    --blue: #0078c8;
-    --blue-dim: #004a8a;
-    --red: #cc2200;
-    --pink: #c0006a;
-    --muted: #8a8e99;
-    --row-bg: #ffffff;
-    --row-alt: #f5f6f9;
-    --header-bg: #e4e6eb;
-  }
-  body.day-mode .board { border-right-color: #d0d2d8; }
-  body.day-mode .board-header { border-bottom-color: #d0d2d8; }
-  body.day-mode .col-headers { background: #e8eaef; border-bottom-color: #d0d2d8; color: #6a6e7a; }
-  body.day-mode .flight-row { border-bottom-color: #e0e2e8; }
-  body.day-mode .flight-row:hover { background: #fff8e8; }
-  body.day-mode .header { border-bottom-color: #c0c2c8; }
-  body.day-mode .bottom-bar { background: #e4e6eb; border-top-color: #c8cad0; color: #6a6e7a; }
-  body.day-mode .dep .cell-dest-city,
-  body.day-mode .arr .cell-dest-city { color: #1a1c22; }
-  body.day-mode .clock { color: #1a1c22; }
-  body.day-mode #dateline { color: #6a6e7a; }
-  body.day-mode .airport-name { color: #4a4e5a; border-color: #b0b2b8; }
-  body.day-mode .airport-name strong { color: #1a1c22; }
-  body.day-mode .status-bar { color: #6a6e7a; }
-  body.day-mode .board-count { color: #6a6e7a; }
-  body.day-mode .board-title { color: #1a1c22; }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1282,21 +1249,6 @@ function dismissAlert(cs) {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') dismissAlert(); });
 
-// ─── DAY / NIGHT PALETTE ─────────────────────────────────────────
-function getSunriseSunset() {
-  // Approximate sunrise/sunset for Boston (lat 42.36)
-  const now = new Date();
-  const doy = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
-  const offset = 10 * Math.sin(2 * Math.PI * (doy - 80) / 365); // seasonal shift
-  return { rise: 6.5 - offset * 0.4, set: 19.5 + offset * 0.4 };
-}
-function applyDayNight() {
-  const h = new Date().getHours() + new Date().getMinutes() / 60;
-  const { rise, set } = getSunriseSunset();
-  document.body.classList.toggle('day-mode', h >= rise && h < set);
-}
-applyDayNight();
-setInterval(applyDayNight, 60000);
 
 // ─── DAILY COUNTER ───────────────────────────────────────────────
 const _today = new Date();

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.4.7 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.4.8 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -436,7 +436,7 @@
   <div class="loading-title" id="flapBoard"></div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.7 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.8 · 2026.03.30</div>
 </div>
 
 <script>
@@ -958,8 +958,8 @@ function cacheRoute(cs, fr) {
 const urgentFetching = new Set(); // prevent duplicate in-flight requests
 async function fetchRoutesUrgent(flights) {
   const urgent = flights
-    .filter(f => isDep(f) && AIRLINE_CS_RE.test(f.callsign)
-               && !routeCache[f.callsign] && !noRoute.has(f.callsign)
+    .filter(f => (isDep(f) || classify(f)==='approach') && AIRLINE_CS_RE.test(f.callsign)
+               && !isRegional(f) && !routeCache[f.callsign] && !noRoute.has(f.callsign)
                && !urgentFetching.has(f.callsign))
     .map(f => f.callsign);
   if (!urgent.length) return;
@@ -1030,10 +1030,18 @@ function isDep(f){
   if(t==='climb') return d<30;
   return false;
 }
+function isBoundForBos(f) {
+  const r = routeCache[f.callsign];
+  if (!r) return null; // unknown
+  return r.destIata === 'BOS' || r.destCity === 'Boston';
+}
 function isArr(f){
   const t=classify(f), d=dist(f);
-  if(t==='approach') return d<60;
-  if(t==='enroute')  return (f.alt||0)<5000 && d<30;
+  const bosConfirmed = isBoundForBos(f);
+  // If route confirms BOS destination, use generous thresholds
+  if(bosConfirmed && (t==='approach'||t==='enroute') && d<80) return true;
+  // No route data yet — use tight thresholds to avoid PVD/MHT false positives
+  if(bosConfirmed === null && t==='approach' && d<15) return true;
   return false;
 }
 function dist(f) {

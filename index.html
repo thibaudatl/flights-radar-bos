@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.4.0 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.4.1 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -421,7 +421,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.0 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.1 · 2026.03.30</div>
 </div>
 
 <script>
@@ -675,8 +675,27 @@ const dismissed = new Set(JSON.parse(sessionStorage.getItem('bos_dismissed') || 
 
 // Standard commercial airline callsign: 3 ICAO letters + 1-4 digits
 const AIRLINE_CS_RE = /^[A-Z]{3}\d{1,4}$/;
-function isLikelyCommercial(f) { return AIRLINE_CS_RE.test(f.callsign); }           // board: show even without route
-function isCommercial(f) { return AIRLINE_CS_RE.test(f.callsign) && !noRoute.has(f.callsign); } // alerts: require route
+
+// Regional/commuter carriers operating at BOS — excluded from board and alerts
+const REGIONAL_OPS = new Set([
+  'RPA', // Republic Airways (United Express / American Eagle)
+  'SKW', // SkyWest (United Express / Delta Connection)
+  'EDV', // Endeavor Air (Delta Connection)
+  'JIA', // PSA Airlines (American Eagle)
+  'PDT', // Piedmont Airlines (American Eagle)
+  'ASH', // Mesa Airlines (United Express)
+  'UCA', // CommutAir (United Express)
+  'KAP', // Cape Air
+  'EJA', // NetJets (private)
+  'FLG', // Frontier? no — placeholder, remove if not needed
+  'GJT', // Great Lakes Airlines
+  'SWQ', // Swiftair
+  'OPT', // Southern Airways Express
+]);
+
+function isRegional(f) { return REGIONAL_OPS.has(f.callsign.slice(0,3)); }
+function isLikelyCommercial(f) { return AIRLINE_CS_RE.test(f.callsign) && !isRegional(f); }
+function isCommercial(f) { return AIRLINE_CS_RE.test(f.callsign) && !noRoute.has(f.callsign) && !isRegional(f); }
 
 // ─── CITY LOOKUP ──────────────────────────────────────────────────
 const CITY = {

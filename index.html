@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board v1.4.5 · 2026.03.30</title>
+<title>Boston Logan — Flight Board v1.4.6 · 2026.03.30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -311,11 +311,26 @@
     transition:opacity 0.6s;
   }
   .loading-overlay.hidden { opacity:0; pointer-events:none; }
-  .loading-title {
-    font-family:'Bebas Neue',sans-serif;
-    font-size:6rem; color:#e8eaed;
-    letter-spacing:10px; line-height:1;
-    text-shadow: 0 0 40px rgba(220,225,235,0.15);
+  .loading-title { display:flex; gap:4px; align-items:flex-end; line-height:1; }
+  .flap-char {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 6rem; line-height: 1;
+    background: #161818; color: #c8cdd6;
+    min-width: 0.62em; padding: 4px 6px 2px;
+    border-radius: 4px;
+    border-bottom: 3px solid #0a0a0a;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    backface-visibility: hidden;
+  }
+  .flap-char.space { background: transparent; box-shadow: none; border-bottom-color: transparent; min-width: 0.35em; }
+  .flap-char.flipping { animation: flapFlip 0.1s ease-in-out; }
+  .flap-char.locked { color: #e8eaed; text-shadow: 0 0 24px rgba(220,225,235,0.25); }
+  @keyframes flapFlip {
+    0%  { transform: rotateX(0deg); }
+    45% { transform: rotateX(-90deg); opacity:0.2; }
+    55% { transform: rotateX(90deg);  opacity:0.2; }
+    100%{ transform: rotateX(0deg); }
   }
   .loading-sub { font-size:0.62rem; color:#4a4d54; letter-spacing:3px; text-transform:uppercase; }
   #kiteCanvas { display:block; }
@@ -418,10 +433,10 @@
 
 <!-- LOADING -->
 <div class="loading-overlay" id="loading">
-  <div class="loading-title">BOSTON LOGAN</div>
+  <div class="loading-title" id="flapBoard"></div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.5 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.4.6 · 2026.03.30</div>
 </div>
 
 <script>
@@ -530,6 +545,49 @@
     }
   });
   observer.observe(document.getElementById('loading'), { attributes: true });
+})();
+
+// ─── SPLIT-FLAP ANIMATION ─────────────────────────────────────────
+(function() {
+  const TARGET = 'BOSTON LOGAN';
+  const CHARS  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@$%&?!+-';
+  const board  = document.getElementById('flapBoard');
+
+  // Build tiles
+  const tiles = TARGET.split('').map((ch, i) => {
+    const el = document.createElement('span');
+    el.className = 'flap-char' + (ch === ' ' ? ' space' : '');
+    el.textContent = ch === ' ' ? '\u00A0' : CHARS[Math.floor(Math.random() * CHARS.length)];
+    board.appendChild(el);
+    return { el, target: ch };
+  });
+
+  function flipTo(tile, char) {
+    tile.el.classList.remove('flipping');
+    void tile.el.offsetWidth; // force reflow to restart animation
+    tile.el.classList.add('flipping');
+    tile.el.textContent = char === ' ' ? '\u00A0' : char;
+  }
+
+  // Stagger each tile: cycle through random chars, then lock
+  tiles.forEach(({ el, target }, i) => {
+    const isSpace = target === ' ';
+    if (isSpace) { el.classList.add('locked'); return; }
+    const cycles   = 10 + Math.floor(Math.random() * 8);
+    const startDelay = i * 55;
+    let count = 0;
+
+    setTimeout(function cycle() {
+      if (count < cycles) {
+        flipTo({ el }, CHARS[Math.floor(Math.random() * CHARS.length)]);
+        count++;
+        setTimeout(cycle, 70 + Math.random() * 30);
+      } else {
+        flipTo({ el }, target);
+        el.classList.add('locked');
+      }
+    }, startDelay);
+  });
 })();
 </script>
 

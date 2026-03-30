@@ -819,8 +819,18 @@ function classify(f){
   if(a>20000)        return 'cruise';
   return 'enroute';
 }
-function isDep(f){ const t=classify(f); return t==='climb'||t==='ground'; }
-function isArr(f){ const t=classify(f); return t==='approach'||(t==='enroute'&&(f.alt||0)<5000); }
+function isDep(f){
+  const t=classify(f), d=dist(f);
+  if(t==='ground')  return d<3;   // must be at BOS, not PVD/MHT/etc.
+  if(t==='climb')   return d<45;  // climbing out of BOS (up to ~10 min after takeoff)
+  return false;
+}
+function isArr(f){
+  const t=classify(f), d=dist(f);
+  if(t==='approach') return d<60;
+  if(t==='enroute')  return (f.alt||0)<5000 && d<30;
+  return false;
+}
 function dist(f) { const d=(f.lat||airport.lat)-airport.lat,e=(f.lon||airport.lon)-airport.lon; return Math.sqrt(d*d+e*e)*111; }
 
 function isImmDep(f){ const a=f.alt||0; return classify(f)==='climb'&&a>=200&&a<=5000&&dist(f)<5; }

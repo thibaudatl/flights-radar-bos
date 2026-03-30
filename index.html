@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 1.8 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 1.9 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -354,7 +354,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.8 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.9 · 2026.03.29</div>
 </div>
 
 <script>
@@ -792,10 +792,12 @@ async function fetchRoutes(flights) {
         const fr = d?.response?.flightroute;
         if (!fr) { noRoute.add(cs); return; }
         routeCache[cs] = {
-          origCity:  fr.origin?.municipality      || null,
-          origIata:  fr.origin?.iata_code         || null,
-          destCity:  fr.destination?.municipality || null,
-          destIata:  fr.destination?.iata_code    || null,
+          origCity:    fr.origin?.municipality      || null,
+          origIata:    fr.origin?.iata_code         || null,
+          destCity:    fr.destination?.municipality || null,
+          destIata:    fr.destination?.iata_code    || null,
+          airlineName: fr.airline?.name             || null,
+          airlineIso:  fr.airline?.country_iso      || null,
         };
       } catch(e) { /* skip */ }
     }));
@@ -912,8 +914,9 @@ function renderList(id, flights, isDeparture){
     const c=(d.city||'——');        // full city name — no slice
     const ia=d.iata||'';
     const al=airline(f.callsign);
-    const alName=al ? al.name : (f.country||'——');
-    const alf=al?al.f:'';
+    const r=routeCache[f.callsign];
+    const alName=r?.airlineName || al?.name || '——';
+    const alf=r?.airlineIso || al?.f || '';
     const a=acft(f.callsign,f.icao);
     const imm=isDeparture?isImmDep(f):isImmArr(f);
     const rc=imm?(isDeparture?'flight-row imm-dep':'flight-row imm-arr'):'flight-row';
@@ -993,7 +996,7 @@ function showNextAlert() {
   document.getElementById('immDest').textContent     = dst;
 
 
-  const alStr  = al ? `${al.name}` : f.country || '—';
+  const alStr  = routeCache[f.callsign]?.airlineName || al?.name || '—';
   const altStr = f.alt   ? `${f.alt.toLocaleString()} ft` : '—';
   const spdStr = f.speed ? `${f.speed} kts` : '—';
   const queueNote = queuedMore > 0 ? `<br><span style="color:#555;font-size:0.7rem">+${queuedMore} MORE IN QUEUE</span>` : '';

@@ -677,7 +677,7 @@ YOUR APARTMENT<!DOCTYPE html>
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.5.8';
+const VERSION = '1.5.9';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -916,7 +916,7 @@ async function fetchFlights() {
   }
   // Always check alerts; only re-render board every 30s
   const doRender = pollCount % RENDER_EVERY === 0;
-  const allDeps=allFlights.filter(f=>isDep(f)&&isCommercial(f));
+  const allDeps=allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f));
   const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
   if(doRender) renderBoards();
   else checkAlerts(allDeps,allArrs);
@@ -1154,7 +1154,7 @@ function renderBoards(){
   renderList('arrList', arrs, false);
   buildTicker(depRows.filter(f=>f.lat!=null), arrs);
   // Alerts: use live flights only
-  const allDeps=allFlights.filter(f=>isDep(f)&&isCommercial(f));
+  const allDeps=allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f));
   const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
   checkAlerts(allDeps,allArrs);
 }

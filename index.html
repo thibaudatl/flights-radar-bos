@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 3.1 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 3.2 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -171,8 +171,11 @@
     font-size: 1.8rem; letter-spacing: 8px;
     display: flex; align-items: center; gap: 10px;
   }
-  .dep .board-label { color: var(--amber); }
-  .arr .board-label { color: var(--blue); }
+  .dep .board-label { color: var(--amber); text-shadow: 0 0 20px rgba(255,184,0,0.25); }
+  .arr .board-label { color: var(--blue);  text-shadow: 0 0 20px rgba(64,196,255,0.25); }
+  .board-icon { display:inline-block; font-style:normal; }
+  .dep .board-icon { transform: rotate(-45deg); display:inline-block; }
+  .arr .board-icon { transform: rotate(45deg); display:inline-block; }
   .board-count { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
   .board-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
   .dep .board-dot { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
@@ -210,8 +213,8 @@
   .cell { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Departures */
-  .dep .cell-time         { color: var(--text); font-size: 0.95rem; font-weight: 700; }
-  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 0.95rem; text-shadow: 0 0 8px rgba(255,184,0,0.5); }
+  .dep .cell-time         { color: #555; font-size: 0.95rem; font-weight: 700; }
+  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.05rem; text-shadow: 0 0 8px rgba(255,184,0,0.5); }
   .dep .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .dep .cell-dest-iata    { color: var(--amber); font-size: 0.78rem; display: block; margin-top: 2px; }
   .dep .cell-airline-name { color: var(--amber-dim); font-size: 0.72rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
@@ -219,19 +222,25 @@
   .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.65rem; display: block; margin-top: 2px; }
 
   /* Arrivals */
-  .arr .cell-time         { color: var(--text); font-size: 0.95rem; font-weight: 700; }
-  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 0.95rem; text-shadow: 0 0 8px rgba(64,196,255,0.5); }
+  .arr .cell-time         { color: #555; font-size: 0.95rem; font-weight: 700; }
+  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 1.05rem; text-shadow: 0 0 8px rgba(64,196,255,0.5); }
   .arr .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .arr .cell-dest-iata    { color: var(--blue); font-size: 0.78rem; display: block; margin-top: 2px; }
   .arr .cell-airline-name { color: var(--blue-dim); font-size: 0.72rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
   .arr .cell-acft-type    { color: var(--blue); font-size: 0.9rem; display: block; }
   .arr .cell-acft-sub     { color: #235060; font-size: 0.65rem; display: block; margin-top: 2px; }
 
-  /* LOOK column */
-  .dep .cell-alt  { color: var(--amber); font-size: 0.78rem; white-space: nowrap; }
-  .arr .cell-alt  { color: var(--blue);  font-size: 0.78rem; white-space: nowrap; }
+  /* ALT / DIST */
+  .cell-alt  { font-size: 0.78rem; white-space: nowrap; }
+  .cell-alt.alt-climb   { color: var(--green); }
+  .cell-alt.alt-level   { color: #888; }
+  .cell-alt.alt-descend { color: #ff6060; }
   .dep .cell-dist { color: var(--amber-dim); font-size: 0.78rem; white-space: nowrap; }
   .arr .cell-dist { color: var(--blue-dim);  font-size: 0.78rem; white-space: nowrap; }
+
+  /* Distance bar */
+  .dist-bar-wrap { position:relative; }
+  .dist-bar { position:absolute; bottom:0; left:0; height:1px; background:currentColor; opacity:0.25; pointer-events:none; }
 
   /* Airline country badge — replaces emoji flags */
   .cell-airline-flag {
@@ -261,13 +270,14 @@
   @keyframes blink-a { 0%,100%{opacity:1} 50%{opacity:0.3}  }
 
   /* Empty */
-  .empty-state { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);gap:12px;font-size:0.72rem;letter-spacing:2px;text-align:center; }
-  .empty-icon  { font-size:2.4rem; opacity:0.25; }
+  .empty-state { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);gap:16px;font-size:0.72rem;letter-spacing:2px;text-align:center; }
+  .empty-icon  { font-size:2.4rem; opacity:0.15; animation: radar-sweep 3s ease-in-out infinite; }
+  @keyframes radar-sweep { 0%,100%{opacity:0.1;transform:scale(0.95)} 50%{opacity:0.3;transform:scale(1.05)} }
 
   /* Bottom bar */
-  .bottom-bar { background:#060606;border-top:1px solid #1a1a1a;padding:8px 28px;display:flex;align-items:center;gap:28px;font-size:0.82rem;color:var(--muted);letter-spacing:1px;flex-shrink:0; }
-  .bottom-bar .coord { color:var(--amber-dim);font-family:'Share Tech Mono',monospace; }
-  .refresh-timer { margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.82rem;color:var(--muted); }
+  .bottom-bar { background:#080808;border-top:2px solid #1e1e1e;padding:9px 28px;display:flex;align-items:center;gap:28px;font-size:0.78rem;color:#4a4a4a;letter-spacing:1.5px;flex-shrink:0;font-family:'Share Tech Mono',monospace; }
+  .bottom-bar .coord { color:#6a5a30;font-family:'Share Tech Mono',monospace; }
+  .refresh-timer { margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#3a3a3a; }
 
   /* Ticker */
   .ticker { background:#050505;border-top:1px solid #161616;padding:7px 0;overflow:hidden;white-space:nowrap;flex-shrink:0; }
@@ -361,7 +371,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.1 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.2 · 2026.03.29</div>
 </div>
 
 <script>
@@ -522,7 +532,7 @@
 <div class="boards">
   <div class="board dep">
     <div class="board-header">
-      <div class="board-label">↑ DEPARTURES</div>
+      <div class="board-label"><span class="board-icon">✈</span> DEPARTURES</div>
       <div class="board-count"><span class="board-dot"></span><span id="depCount">--</span></div>
     </div>
     <div class="col-headers">
@@ -535,7 +545,7 @@
 
   <div class="board arr">
     <div class="board-header">
-      <div class="board-label">↓ ARRIVALS</div>
+      <div class="board-label"><span class="board-icon">✈</span> ARRIVALS</div>
       <div class="board-count"><span class="board-dot"></span><span id="arrCount">--</span></div>
     </div>
     <div class="col-headers">
@@ -938,15 +948,18 @@ function renderList(id, flights, isDeparture){
     const a={t:acftLabel, s:''};
     const imm=isDeparture?isImmDep(f):isImmArr(f);
     const rc=imm?(isDeparture?'flight-row imm-dep':'flight-row imm-arr'):'flight-row';
-    const look=lookDir(bearingToFlight(f));
-    const overheadCls=look.isOverhead?' overhead':'';
-    return `<div class="${rc}">
+    const vr=f.vertRate||0;
+    const altCls=vr>200?'alt-climb':vr<-200?'alt-descend':'alt-level';
+    const distMi=dist(f)*0.621371;
+    const distPct=Math.max(5,Math.min(100,100-(distMi/15*100))).toFixed(0);
+    const distBarColor=isDeparture?'var(--amber)':'var(--blue)';
+    return `<div class="${rc}" style="position:relative">
       <span class="cell cell-time">${t}</span>
       <span class="cell cell-flight">${cs}</span>
-      <span class="cell"><span class="cell-dest-city">${c}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}<span class="cell-airline-name">${alName}</span></span>
+      <span class="cell"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${a.t}</span></span>
-      <span class="cell cell-alt">${f.alt!=null?f.alt.toLocaleString()+'ft':'——'}</span>
-      <span class="cell cell-dist">${(dist(f)*0.621371).toFixed(1)+'mi'}</span>
+      <span class="cell cell-alt ${altCls}">${f.alt!=null?f.alt.toLocaleString()+'ft':'——'}</span>
+      <span class="cell cell-dist dist-bar-wrap" style="color:${distBarColor}">${distMi.toFixed(1)+'mi'}<span class="dist-bar" style="width:${distPct}%;color:${distBarColor}"></span></span>
     </div>`;
   }).join('');
 }

@@ -18,6 +18,7 @@ YOUR APARTMENT<!DOCTYPE html>
     --blue: #40c4ff;
     --blue-dim: #4890b8;
     --red: #ff3d3d;
+    --pink: #ff6ec7;
     --text: #e8e0d0;
     --muted: #787870;
     --row-bg: #111111;
@@ -395,6 +396,10 @@ YOUR APARTMENT<!DOCTYPE html>
   .imm-dismiss:hover { color: var(--text); border-color: #555; }
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; }
 
+  /* ─── OVERHEAD ROW HIGHLIGHT ─── */
+  .flight-row.overhead { border-left: 3px solid var(--pink); }
+  .flight-row.overhead .cell-flight { color: var(--pink) !important; text-shadow: 0 0 8px rgba(255,110,199,0.5) !important; }
+
   /* ─── LAYOUT HELPERS ─── */
   .header-right { display: flex; align-items: center; gap: 22px; }
   .clock-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
@@ -663,13 +668,28 @@ YOUR APARTMENT<!DOCTYPE html>
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.5.5';
+const VERSION = '1.5.6';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
 document.getElementById('loadingVersion').textContent = `${VERSION} · 2026.03.30`;
 
 const airport = { icao:'KBOS', lat:42.3656, lon:-71.0096 };
+
+// ─── VIEWER / OVERHEAD ────────────────────────────────────────────
+const VIEWER = { lat: 42.3662, lon: -71.0621 }; // apartment location
+const OVERHEAD_BEARING = 85; // bearing from apartment to KBOS (~due east)
+
+// Bearing from apartment to a flight (degrees, 0=N clockwise)
+function bearingToFlight(f) {
+  if (f.lat == null || f.lon == null) return null;
+  const lat1 = VIEWER.lat * Math.PI / 180;
+  const lat2 = f.lat     * Math.PI / 180;
+  const dLon = (f.lon - VIEWER.lon) * Math.PI / 180;
+  const y = Math.sin(dLon) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+}
 
 // Convert heading to human-readable compass direction
 function lookDir(bearing) {
@@ -1105,7 +1125,9 @@ function renderList(id, flights, isDeparture){
     const alf=r?.airlineIso || al?.f || '';
     const acftLabel = f.acftType || acft(f.callsign, f.icao).t;
     const imm = isDeparture ? isImmDep(f) : isImmArr(f);
-    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : 'flight-row';
+    const bearing = bearingToFlight(f);
+    const isOverhead = bearing != null && Math.abs(bearing - OVERHEAD_BEARING) < 15;
+    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : (isOverhead ? 'flight-row overhead' : 'flight-row');
     const vr = f.vertRate || 0;
     const altCls = vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
     const distMi = dist(f) * 0.621371;

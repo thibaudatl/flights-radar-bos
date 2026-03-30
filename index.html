@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 2.9 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 3.0 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -353,7 +353,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.9 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">3.0 · 2026.03.29</div>
 </div>
 
 <script>
@@ -938,7 +938,7 @@ function renderList(id, flights, isDeparture){
       <span class="cell"><span class="cell-dest-city">${c}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${a.t}</span></span>
       <span class="cell cell-alt">${f.alt!=null?f.alt.toLocaleString()+'ft':'——'}</span>
-      <span class="cell cell-dist">${dist(f).toFixed(1)+'km'}</span>
+      <span class="cell cell-dist">${(dist(f)*0.621371).toFixed(1)+'mi'}</span>
     </div>`;
   }).join('');
 }

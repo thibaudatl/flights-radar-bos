@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 2.5 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 2.6 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -176,17 +176,16 @@
   /* ─── COLUMNS ─── */
   .col-headers {
     display: grid;
-    grid-template-columns: 68px 88px 1fr 80px 68px; column-gap: 14px;
+    grid-template-columns: 62px 82px 1fr 72px 80px 62px; column-gap: 10px;
     padding: 6px 16px;
     font-size: 0.65rem; color: #7a7068; letter-spacing: 1px;
     border-bottom: 1px solid #161616; text-transform: uppercase;
     flex-shrink: 0;
   }
-  .col-headers span:nth-child(4) { margin-left: -8px; }
   .flight-list { flex: 1; min-height: 0; overflow: hidden; }
   .flight-row {
     display: grid;
-    grid-template-columns: 68px 88px 1fr 80px 68px; column-gap: 14px;
+    grid-template-columns: 62px 82px 1fr 72px 80px 62px; column-gap: 10px;
     padding: 0 16px; height: 62px;
     align-items: center;
     border-bottom: 1px solid #141414;
@@ -221,11 +220,10 @@
   .arr .cell-acft-sub     { color: #235060; font-size: 0.65rem; display: block; margin-top: 2px; }
 
   /* LOOK column */
-  .cell-look-dir  { font-size: 1rem; font-weight: 700; display: block; letter-spacing: 2px; }
-  .cell-look-deg  { font-size: 0.7rem; display: block; margin-top: 2px; color: var(--muted); }
-  .dep .cell-look-dir { color: var(--amber); }
-  .arr .cell-look-dir { color: var(--blue); }
-  .cell-look-dir.overhead { color: #ff6060 !important; animation: blink-d 0.8s infinite; }
+  .dep .cell-alt  { color: var(--amber); font-size: 0.78rem; white-space: nowrap; }
+  .arr .cell-alt  { color: var(--blue);  font-size: 0.78rem; white-space: nowrap; }
+  .dep .cell-dist { color: var(--amber-dim); font-size: 0.78rem; white-space: nowrap; }
+  .arr .cell-dist { color: var(--blue-dim);  font-size: 0.78rem; white-space: nowrap; }
 
   /* Airline country badge — replaces emoji flags */
   .cell-airline-flag {
@@ -355,7 +353,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.5 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.6 · 2026.03.29</div>
 </div>
 
 <script>
@@ -520,7 +518,7 @@
       <div class="board-count" id="depCount">--</div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>AIRCRAFT</span><span>LOOK</span>
+      <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>AIRCRAFT</span><span>ALT</span><span>DIST</span>
     </div>
     <div class="flight-list" id="depList">
       <div class="empty-state"><div class="empty-icon">↑</div><div>LOADING...</div></div>
@@ -533,7 +531,7 @@
       <div class="board-count" id="arrCount">--</div>
     </div>
     <div class="col-headers">
-      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span>AIRCRAFT</span><span>LOOK</span>
+      <span>TIME</span><span>FLIGHT</span><span>ORIGIN</span><span>AIRCRAFT</span><span>ALT</span><span>DIST</span>
     </div>
     <div class="flight-list" id="arrList">
       <div class="empty-state"><div class="empty-icon">↓</div><div>LOADING...</div></div>
@@ -939,7 +937,8 @@ function renderList(id, flights, isDeparture){
       <span class="cell cell-flight">${cs}</span>
       <span class="cell"><span class="cell-dest-city">${c}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${a.t}</span></span>
-      <span class="cell"><span class="cell-look-dir${overheadCls}">${look.isOverhead?'⚠ '+look.card:look.card}</span><span class="cell-look-deg">${look.deg}°</span></span>
+      <span class="cell cell-alt">${f.alt!=null?f.alt.toLocaleString()+'ft':'——'}</span>
+      <span class="cell cell-dist">${dist(f).toFixed(1)+'km'}</span>
     </div>`;
   }).join('');
 }

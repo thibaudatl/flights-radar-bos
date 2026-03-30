@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boston Logan — Flight Board 1.9 · 2026.03.29</title>
+<title>Boston Logan — Flight Board 2.0 · 2026.03.29</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
@@ -354,7 +354,7 @@
   <div class="loading-title">BOSTON LOGAN</div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.9 · 2026.03.29</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">2.0 · 2026.03.29</div>
 </div>
 
 <script>
@@ -798,6 +798,7 @@ async function fetchRoutes(flights) {
           destIata:    fr.destination?.iata_code    || null,
           airlineName: fr.airline?.name             || null,
           airlineIso:  fr.airline?.country_iso      || null,
+          iataCs:      fr.callsign_iata             || null,
         };
       } catch(e) { /* skip */ }
     }));
@@ -909,12 +910,12 @@ function renderList(id, flights, isDeparture){
   }
   el.innerHTML=flights.slice(0,6).map(f=>{
     const t=displayTime(f,isDeparture);
-    const cs=f.callsign.padEnd(7).slice(0,7);
+    const r=routeCache[f.callsign];
+    const cs=(r?.iataCs || f.callsign).slice(0,7);
     const d=destInfo(f,isDeparture);
     const c=(d.city||'——');        // full city name — no slice
     const ia=d.iata||'';
     const al=airline(f.callsign);
-    const r=routeCache[f.callsign];
     const alName=r?.airlineName || al?.name || '——';
     const alf=r?.airlineIso || al?.f || '';
     const a=acft(f.callsign,f.icao);
@@ -992,7 +993,7 @@ function showNextAlert() {
   const queuedMore = alertQueue.filter(e => !dismissed.has(e.f.callsign)).length;
 
   document.getElementById('immBadge').textContent    = isDeparture ? '✈  NOW DEPARTING' : '✈  NOW LANDING';
-  document.getElementById('immCallsign').textContent = f.callsign;
+  document.getElementById('immCallsign').textContent = routeCache[f.callsign]?.iataCs || f.callsign;
   document.getElementById('immDest').textContent     = dst;
 
 

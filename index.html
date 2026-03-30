@@ -742,9 +742,18 @@ let isDemo = false;
 async function fetchFlights() {
   setStatus('loading');
   const {lat,lon}=airport;
-  const NM = 50; // nautical miles radius
+  const NM = 50;
+  const directUrl = `https://api.adsb.lol/v2/lat/${lat}/lon/${lon}/dist/${NM}`;
+
   try {
-    const res=await fetch(`https://api.adsb.lol/v2/lat/${lat}/lon/${lon}/dist/${NM}`);
+    // Try direct first
+    let res;
+    try {
+      res = await fetch(directUrl);
+    } catch(e1) {
+      // Direct blocked by CORS — try proxy
+      res = await fetch(`https://corsproxy.io/?${encodeURIComponent(directUrl)}`);
+    }
     if(!res.ok) throw new Error(res.status);
     const data=await res.json();
     allFlights=(data.ac||[]).map(parseState).filter(f=>f.lat!=null&&f.lon!=null);

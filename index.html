@@ -1,4 +1,3 @@
-YOUR APARTMENT<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -677,7 +676,7 @@ YOUR APARTMENT<!DOCTYPE html>
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.5.9';
+const VERSION = '1.6.0';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -916,10 +915,12 @@ async function fetchFlights() {
   }
   // Always check alerts; only re-render board every 30s
   const doRender = pollCount % RENDER_EVERY === 0;
-  const allDeps=allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f));
-  const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
+  // For alerts, bypass isDep — isImmDep's physical constraints are tight enough on their own.
+  // isDep can miss real takeoffs (heading filter, baro lag) which would silence the alert.
+  const alertDeps = allFlights.filter(f=>isLikelyCommercial(f));
+  const allArrs   = allFlights.filter(f=>isArr(f)&&isCommercial(f));
   if(doRender) renderBoards();
-  else checkAlerts(allDeps,allArrs);
+  else checkAlerts(alertDeps,allArrs);
 
   updateDailyCounter(allDeps, allArrs);
 }
@@ -1007,14 +1008,14 @@ function parseState(s){
 // ─── CLASSIFY ─────────────────────────────────────────────────────
 function classify(f){
   if(f.onGround) return 'ground';
-  const a=f.alt||0,v=f.vertRate||0;
+  const a=f.alt||0, v=f.geomRate||f.vertRate||0;
   if(v<-1&&a<8000)  return 'approach';
   if(v>1 &&a<15000) return 'climb';
   if(a>20000)        return 'cruise';
   return 'enroute';
 }
 // KBOS runway departure headings (±20° tolerance covers both runway ends in use)
-const BOS_DEP_HEADINGS = [15, 33, 110, 196, 213, 290]; // 04L/R, 09, 14, 22L/R, 27
+const BOS_DEP_HEADINGS = [40, 90, 150, 220, 270, 330]; // 04L/R, 09, 15L/R, 22L/R, 27, 33L/R
 function looksLikeBOSDep(f) {
   if (f.heading == null) return true; // no heading data — don't exclude
   return BOS_DEP_HEADINGS.some(h => {
@@ -1154,9 +1155,9 @@ function renderBoards(){
   renderList('arrList', arrs, false);
   buildTicker(depRows.filter(f=>f.lat!=null), arrs);
   // Alerts: use live flights only
-  const allDeps=allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f));
-  const allArrs=allFlights.filter(f=>isArr(f)&&isCommercial(f));
-  checkAlerts(allDeps,allArrs);
+  const alertDeps=allFlights.filter(f=>isLikelyCommercial(f));
+  const allArrs  =allFlights.filter(f=>isArr(f)&&isCommercial(f));
+  checkAlerts(alertDeps,allArrs);
 }
 
 function renderList(id, flights, isDeparture){

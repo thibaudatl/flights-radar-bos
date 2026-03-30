@@ -54,7 +54,7 @@
   body.day-mode .dep .cell-dest-city,
   body.day-mode .arr .cell-dest-city { color: #1a1c22; }
   body.day-mode .clock { color: #1a1c22; }
-  body.day-mode #dateline { color: #6a6e7a !important; }
+  body.day-mode #dateline { color: #6a6e7a; }
   body.day-mode .airport-name { color: #4a4e5a; border-color: #b0b2b8; }
   body.day-mode .airport-name strong { color: #1a1c22; }
   body.day-mode .status-bar { color: #6a6e7a; }
@@ -248,8 +248,10 @@
 
   .cell { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+  /* Shared */
+  .cell-time              { color: #555; font-size: 0.95rem; font-weight: 700; }
+
   /* Departures */
-  .dep .cell-time         { color: #555; font-size: 0.95rem; font-weight: 700; }
   .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.05rem; text-shadow: 0 0 8px rgba(255,184,0,0.5); }
   .dep .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .dep .cell-dest-iata    { color: var(--amber); font-size: 0.78rem; display: block; margin-top: 2px; }
@@ -258,7 +260,6 @@
   .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.65rem; display: block; margin-top: 2px; }
 
   /* Arrivals */
-  .arr .cell-time         { color: #555; font-size: 0.95rem; font-weight: 700; }
   .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 1.05rem; text-shadow: 0 0 8px rgba(64,196,255,0.5); }
   .arr .cell-dest-city    { color: var(--text); font-size: 1rem; display: block; }
   .arr .cell-dest-iata    { color: var(--blue); font-size: 0.78rem; display: block; margin-top: 2px; }
@@ -271,8 +272,8 @@
   .cell-alt.alt-climb   { color: var(--green); }
   .cell-alt.alt-level   { color: #888; }
   .cell-alt.alt-descend { color: #ff6060; }
-  .dep .cell-dist { color: var(--amber-dim); }
-  .arr .cell-dist { color: var(--blue-dim); }
+  .dep .cell-dist { color: var(--amber); }
+  .arr .cell-dist { color: var(--blue); }
 
   /* Direction */
   .dep .cell-dir { color: var(--amber-dim); font-size: 0.78rem; white-space: nowrap; }
@@ -426,6 +427,11 @@
   /* ─── OVERHEAD ROW HIGHLIGHT ─── */
   .flight-row.overhead { border-left: 3px solid var(--pink); }
   .flight-row.overhead .cell-flight { color: var(--pink) !important; text-shadow: 0 0 8px rgba(255,110,199,0.5) !important; }
+
+  /* ─── LAYOUT HELPERS ─── */
+  .header-right { display: flex; align-items: center; gap: 22px; }
+  .clock-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  #dateline { font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; color: #8a8a8a; letter-spacing: 2px; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -435,7 +441,7 @@
   <div class="loading-title" id="flapBoard"></div>
   <canvas id="kiteCanvas" width="420" height="120"></canvas>
   <div class="loading-sub">Connecting to live airspace · KBOS</div>
-  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.5.1 · 2026.03.30</div>
+  <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:#e8eaed;letter-spacing:3px;">1.5.2 · 2026.03.30</div>
 </div>
 
 <script>
@@ -602,7 +608,7 @@
     <div class="imm-stat"><div class="imm-stat-label">DISTANCE</div><div class="imm-stat-value" id="immDist">—</div></div>
     <div class="imm-stat"><div class="imm-stat-label">HEADING</div><div class="imm-stat-value" id="immDir">—</div></div>
   </div>
-  <button class="imm-dismiss" onclick="dismissAlert()">DISMISS · ESC</button>
+  <button class="imm-dismiss" id="dismissBtn">DISMISS · ESC</button>
   <div class="imm-auto" id="immAuto">AUTO-DISMISS IN 15s</div>
 </div>
 
@@ -611,7 +617,7 @@
   <div class="header-left">
     <div class="board-title">FLIGHT BOARD</div>
     <div class="info-wrap">
-      <button class="info-btn" onclick="toggleInfo()" title="Visibility info">i</button>
+      <button class="info-btn" id="infoBtn" title="Visibility info">i</button>
       <div class="info-popover" id="infoPopover">
         <h4>Flight Criteria</h4>
         <div class="info-row"><span class="info-label">Data source</span><span class="info-val">ADSB.LOL · ADSBDB</span></div>
@@ -635,14 +641,14 @@
       Boston Logan International
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:22px">
+  <div class="header-right">
     <div class="status-bar">
       <span class="status-dot" id="statusDot"></span>
       <span id="statusText">CONNECTING</span>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+    <div class="clock-wrap">
       <div class="clock" id="clock">--:--:--</div>
-      <div id="dateline" style="font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#8a8a8a;letter-spacing:2px;text-transform:uppercase"></div>
+      <div id="dateline"></div>
     </div>
   </div>
 </div>
@@ -676,6 +682,8 @@
   </div>
 </div>
 
+
+<div class="ticker" id="ticker"><span class="ticker-inner" id="tickerInner"></span></div>
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
@@ -728,6 +736,7 @@ function lookDir(bearing) {
 }
 const REFRESH = 5;       // API poll interval (seconds) — for alert responsiveness
 const RENDER_EVERY = 6;  // re-render board every Nth poll (6 × 5s = 30s)
+const NM = 50;           // ADS-B search radius in nautical miles
 let countdown = REFRESH;
 let pollCount = 0;
 let allFlights = [];
@@ -749,7 +758,7 @@ const REGIONAL_OPS = new Set([
   'UCA', // CommutAir (United Express)
   'KAP', // Cape Air
   'EJA', // NetJets (private)
-  'FLG', // Frontier? no — placeholder, remove if not needed
+  'FLG', // Frontier (regional ops)
   'GJT', // Great Lakes Airlines
   'SWQ', // Swiftair
   'OPT', // Southern Airways Express
@@ -851,6 +860,8 @@ function toggleInfo() {
   const p = document.getElementById('infoPopover');
   p.classList.toggle('show');
 }
+document.getElementById('infoBtn').addEventListener('click', toggleInfo);
+document.getElementById('dismissBtn').addEventListener('click', () => dismissAlert());
 document.addEventListener('click', e => {
   const wrap = document.querySelector('.info-wrap');
   if (wrap && !wrap.contains(e.target)) {
@@ -904,7 +915,6 @@ let isDemo = false;
 async function fetchFlights() {
   setStatus('loading');
   const {lat,lon}=airport;
-  const NM = 50;
   const directUrl = `https://api.adsb.lol/v2/lat/${lat}/lon/${lon}/dist/${NM}`;
 
   try {
@@ -1149,30 +1159,26 @@ function renderList(id, flights, isDeparture){
     const al=airline(f.callsign);
     const alName=r?.airlineName || al?.name || '——';
     const alf=r?.airlineIso || al?.f || '';
-    const acftLabel=f.acftType || acft(f.callsign,f.icao).t;
-    const a={t:acftLabel, s:''};
-    const imm=isDeparture?isImmDep(f):isImmArr(f);
-    const bearing=bearingToFlight(f);
-    const isOverhead=bearing!=null&&Math.abs(bearing-OVERHEAD_BEARING)<15;
-    const rc=imm?(isDeparture?'flight-row imm-dep':'flight-row imm-arr'):(isOverhead?'flight-row overhead':'flight-row');
-    const vr=f.vertRate||0;
-    const altCls=vr>200?'alt-climb':vr<-200?'alt-descend':'alt-level';
-    const distMi=dist(f)*0.621371;
-    const distPct=Math.max(5,Math.min(100,100-(distMi/15*100))).toFixed(0);
-    const distBarColor=isDeparture?'var(--amber)':'var(--blue)';
-    return `<div class="${rc}" style="position:relative">
+    const acftLabel = f.acftType || acft(f.callsign, f.icao).t;
+    const imm = isDeparture ? isImmDep(f) : isImmArr(f);
+    const bearing = bearingToFlight(f);
+    const isOverhead = bearing != null && Math.abs(bearing - OVERHEAD_BEARING) < 15;
+    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : (isOverhead ? 'flight-row overhead' : 'flight-row');
+    const vr = f.vertRate || 0;
+    const altCls = vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
+    const distMi = dist(f) * 0.621371;
+    return `<div class="${rc}">
       <span class="cell cell-time">${t}</span>
       <span class="cell cell-flight">${cs}</span>
-      <span class="cell"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia?`<span class="cell-dest-iata">${ia}</span>`:''}<span class="cell-airline-name">${alName}</span></span>
-      <span class="cell"><span class="cell-acft-type">${a.t}</span></span>
-      <span class="cell cell-alt ${altCls}">${f.alt!=null?f.alt.toLocaleString()+'ft':'——'}</span>
-      <span class="cell cell-dist" style="color:${distBarColor};--bar:${distPct}%">${distMi.toFixed(1)+'mi'}</span>
-      <span class="cell cell-dir">${f.heading!=null?lookDir(f.heading).card:'——'}</span>
+      <span class="cell"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia ? `<span class="cell-dest-iata">${ia}</span>` : ''}<span class="cell-airline-name">${alName}</span></span>
+      <span class="cell"><span class="cell-acft-type">${acftLabel}</span></span>
+      <span class="cell cell-alt ${altCls}">${f.alt != null ? f.alt.toLocaleString() + 'ft' : '——'}</span>
+      <span class="cell cell-dist">${distMi.toFixed(1) + 'mi'}</span>
+      <span class="cell cell-dir">${f.heading != null ? lookDir(f.heading).card : '——'}</span>
     </div>`;
   }).join('');
 }
 
-// ─── IMMINENT ALERT ───────────────────────────────────────────────
 // ─── ALERT QUEUE SYSTEM ───────────────────────────────────────────
 // How it works:
 //   1. On each data refresh, ALL imminent flights are collected and sorted
@@ -1293,7 +1299,8 @@ applyDayNight();
 setInterval(applyDayNight, 60000);
 
 // ─── DAILY COUNTER ───────────────────────────────────────────────
-const _d = new Date(); const TODAY_KEY = 'bos_today_' + `${_d.getFullYear()}-${_d.getMonth()}-${_d.getDate()}`;
+const _today = new Date();
+const TODAY_KEY = `bos_today_${_today.getFullYear()}-${_today.getMonth()}-${_today.getDate()}`;
 let todayCounts = JSON.parse(localStorage.getItem(TODAY_KEY) || '{"dep":0,"arr":0}');
 const dailySeen = new Set(JSON.parse(sessionStorage.getItem('bos_daily_seen') || '[]'));
 function saveTodayCounts() {
@@ -1312,14 +1319,16 @@ function updateDailyCounter(deps, arrs) {
 
 
 // ─── TICKER ───────────────────────────────────────────────────────
-function buildTicker(deps,arrs){
-  const label=f=>{const r=routeCache[f.callsign]; return r?.iataCs||f.callsign;};
-  const aln=f=>{const r=routeCache[f.callsign]; return r?.airlineName||airline(f.callsign)?.name||'';};
-  const items=[
-    ...deps.slice(0,5).map(f=>{const d=destInfo(f,true); return `↑ ${label(f)} ${aln(f)} → ${d.city||d.iata||'—'}`;}),
-    ...arrs.slice(0,5).map(f=>{const d=destInfo(f,false); return `↓ ${label(f)} ${aln(f)} ← ${d.city||d.iata||'—'}`;}),
+function buildTicker(deps, arrs) {
+  const inner = document.getElementById('tickerInner');
+  if (!inner) return;
+  const label = f => { const r = routeCache[f.callsign]; return r?.iataCs || f.callsign; };
+  const aln   = f => { const r = routeCache[f.callsign]; return r?.airlineName || airline(f.callsign)?.name || ''; };
+  const items = [
+    ...deps.slice(0,5).map(f => { const d = destInfo(f, true);  return `↑ ${label(f)} ${aln(f)} → ${d.city||d.iata||'—'}`; }),
+    ...arrs.slice(0,5).map(f => { const d = destInfo(f, false); return `↓ ${label(f)} ${aln(f)} ← ${d.city||d.iata||'—'}`; }),
   ];
-  if(items.length) document.getElementById('ticker').textContent='   ✈   '+items.join('   ·   ')+'   ✈   BOSTON LOGAN INTERNATIONAL · KBOS   ✈   ';
+  if (items.length) inner.textContent = '   ✈   ' + items.join('   ·   ') + '   ✈   BOSTON LOGAN INTERNATIONAL · KBOS   ✈   ';
 }
 
 // ─── STATUS ───────────────────────────────────────────────────────
@@ -1381,8 +1390,8 @@ function demoData(){
     if (!d.dep && alt < 300)  alt = d.alt0 + Math.round(Math.random()*400);
 
     routeCache[d.cs] = d.dep
-      ? {destCity:d.dest.city,destIata:d.dest.iata,schedDepTime:null,origCity:null,origIata:null}
-      : {origCity:d.orig.city,origIata:d.orig.iata,schedArrTime:null,destCity:null,destIata:null};
+      ? {destCity:d.dest.city,destIata:d.dest.iata,origCity:'Boston',origIata:'BOS'}
+      : {origCity:d.orig.city,origIata:d.orig.iata,destCity:'Boston',destIata:'BOS'};
 
     const hdg = d.dep
       ? (55 + i*15 + Math.sin(t*0.25)*6) % 360

@@ -759,11 +759,34 @@ async function fetchFlights() {
     allFlights=(data.ac||[]).map(parseState).filter(f=>f.lat!=null&&f.lon!=null);
     isDemo = false;
     setStatus('live');
+    fetchRoutes(allFlights);
   } catch(e) {
     console.warn('Live feed unavailable, using demo data:', e.message);
     isDemo = true;
     allFlights=demoData();
     setStatus('error');
+  }
+  renderBoards();
+}
+
+async function fetchRoutes(flights) {
+  const callsigns = [...new Set(
+    flights.map(f => f.callsign).filter(cs => cs && cs !== '------' && !routeCache[cs])
+  )];
+  for (const cs of callsigns) {
+    try {
+      const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
+      if (!res.ok) continue;
+      const d = await res.json();
+      const fr = d?.response?.flightroute;
+      if (!fr) continue;
+      routeCache[cs] = {
+        origCity:  fr.origin?.municipality      || null,
+        origIata:  fr.origin?.iata_code         || null,
+        destCity:  fr.destination?.municipality || null,
+        destIata:  fr.destination?.iata_code    || null,
+      };
+    } catch(e) { /* skip */ }
   }
   renderBoards();
 }

@@ -6,7 +6,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
-  html { font-size: 16px; }
+  html { font-size: 20px; }
 
   :root {
     --bg: #0a0a0a;
@@ -200,7 +200,7 @@
   /* ─── COLUMNS ─── */
   .col-headers {
     display: grid;
-    grid-template-columns: 60px 100px 1fr 100px 90px 72px 52px; column-gap: 12px;
+    grid-template-columns: 72px 120px 1fr 120px 108px 86px 62px; column-gap: 14px;
     padding: 6px 20px;
     font-size: 0.85rem; color: #8a8880; letter-spacing: 1px;
     background: #0e0e0e;
@@ -211,8 +211,8 @@
   .flight-list { flex: 1; min-height: 0; overflow: hidden; }
   .flight-row {
     display: grid;
-    grid-template-columns: 60px 100px 1fr 100px 90px 72px 52px; column-gap: 12px;
-    padding: 0 20px; height: 84px;
+    grid-template-columns: 72px 120px 1fr 120px 108px 86px 62px; column-gap: 14px;
+    padding: 0 20px; height: 92px;
     align-items: center;
     border-bottom: 1px solid #161616;
     animation: flipIn 0.35s ease-out;
@@ -682,7 +682,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.5';
+const VERSION = '1.6.6';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;

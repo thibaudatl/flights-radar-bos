@@ -155,14 +155,23 @@
     font-family: 'Share Tech Mono', monospace;
     font-size: 2.2rem; color: #d0d4dc; letter-spacing: 4px;
   }
-  .status-bar { display: flex; align-items: center; gap: 12px; font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; }
+  .status-bar { display: flex; align-items: center; gap: 12px; font-size: 1rem; color: var(--muted); letter-spacing: 1px; }
   .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); display: inline-block; }
   .status-dot.live  { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
   .status-dot.error { background: var(--red); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
   /* ─── BOARDS ─── */
-  .boards { display: flex; flex-direction: row; flex: 1; min-height: 0; }
+  .boards { display: flex; flex-direction: row; flex: 1; min-height: 0; position: relative; }
+  .boards::after {
+    content: ''; pointer-events: none;
+    position: absolute; inset: 0; z-index: 10;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px, transparent 3px,
+      rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
+    );
+  }
   .board { border-bottom: none; border-right: 2px solid #222; display: flex; flex-direction: column; flex: 1; min-height: 0; }
   .board:last-child { border-right: none; }
   .dep { border-top: 3px solid var(--amber); }
@@ -170,7 +179,7 @@
 
   .board-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; border-bottom: 1px solid #1e1e1e;
+    padding: 16px 16px; border-bottom: 1px solid #1e1e1e;
     flex-shrink: 0;
   }
   .board-label {
@@ -183,7 +192,7 @@
   .board-icon { display:inline-block; font-style:normal; }
   .dep .board-icon { transform: rotate(-45deg); display:inline-block; }
   .arr .board-icon { transform: rotate(45deg); display:inline-block; }
-  .board-count { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+  .board-count { font-size: 1rem; color: var(--muted); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
   .board-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
   .dep .board-dot { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
   .arr .board-dot { background: var(--blue);  box-shadow: 0 0 6px var(--blue); }
@@ -221,26 +230,26 @@
   .cell { font-family: 'Share Tech Mono', monospace; font-size: 1.15rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Shared */
-  .cell-time              { color: #aaa; font-size: 1.1rem; font-weight: 700; }
+  .cell-time              { color: #d0d0d0; font-size: 1.2rem; font-weight: 700; }
 
   /* Departures */
   .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(255,184,0,0.5); }
   .dep .cell-dest-city    { color: var(--text); font-size: 1.15rem; display: block; }
   .dep .cell-dest-iata    { color: var(--amber); font-size: 0.9rem; display: block; margin-top: 2px; }
   .dep .cell-airline-name { color: var(--amber-dim); font-size: 0.85rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
-  .dep .cell-acft-type    { color: var(--amber); font-size: 1.05rem; display: block; }
-  .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.75rem; display: block; margin-top: 2px; }
+  .dep .cell-acft-type    { color: var(--amber); font-size: 1.15rem; display: block; }
+  .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.85rem; display: block; margin-top: 2px; }
 
   /* Arrivals */
   .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(64,196,255,0.5); }
   .arr .cell-dest-city    { color: var(--text); font-size: 1.15rem; display: block; }
   .arr .cell-dest-iata    { color: var(--blue); font-size: 0.9rem; display: block; margin-top: 2px; }
   .arr .cell-airline-name { color: var(--blue-dim); font-size: 0.85rem; display: block; letter-spacing: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
-  .arr .cell-acft-type    { color: var(--blue); font-size: 1.05rem; display: block; }
-  .arr .cell-acft-sub     { color: #235060; font-size: 0.75rem; display: block; margin-top: 2px; }
+  .arr .cell-acft-type    { color: var(--blue); font-size: 1.15rem; display: block; }
+  .arr .cell-acft-sub     { color: #235060; font-size: 0.85rem; display: block; margin-top: 2px; }
 
   /* ALT / DIST */
-  .cell-alt  { font-size: 0.9rem; white-space: nowrap; }
+  .cell-alt  { font-size: 1.05rem; white-space: nowrap; }
   .cell-alt.alt-climb   { color: var(--green); }
   .cell-alt.alt-level   { color: #b0b0b0; }
   .cell-alt.alt-descend { color: #ff6060; }
@@ -248,10 +257,10 @@
   .arr .cell-dist { color: var(--blue); }
 
   /* Direction */
-  .dep .cell-dir { color: var(--amber-dim); font-size: 0.9rem; white-space: nowrap; }
-  .arr .cell-dir { color: var(--blue-dim);  font-size: 0.9rem; white-space: nowrap; }
+  .dep .cell-dir { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; }
+  .arr .cell-dir { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; }
 
-  .dep .cell-dist, .arr .cell-dist { font-size: 0.9rem; white-space: nowrap; }
+  .dep .cell-dist, .arr .cell-dist { font-size: 1.05rem; white-space: nowrap; }
 
   /* Airline country badge — replaces emoji flags */
   .cell-airline-flag {
@@ -404,8 +413,8 @@
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; }
 
   /* ─── OVERHEAD ROW HIGHLIGHT ─── */
-  .flight-row.overhead { border-left: 3px solid var(--pink); }
-  .flight-row.overhead .cell-flight { color: var(--pink) !important; text-shadow: 0 0 8px rgba(255,110,199,0.5) !important; }
+  .flight-row.overhead { border-left: 5px solid var(--pink); }
+  .flight-row.overhead .cell-flight { color: var(--pink) !important; text-shadow: 0 0 12px rgba(255,110,199,0.7) !important; }
 
   /* ─── LAYOUT HELPERS ─── */
   .header-right { display: flex; align-items: center; gap: 22px; }
@@ -676,7 +685,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.3';
+const VERSION = '1.6.4';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;

@@ -676,7 +676,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.2';
+const VERSION = '1.6.3';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -1260,8 +1260,8 @@ function showNextAlert() {
     document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s  ·  +${queuedMore} IN QUEUE`;
   }
 
-  // Countdown — 15s departures, 6s arrivals
-  autoCountdown = isDeparture ? 15 : 6;
+  // Countdown — 18s departures, 6s arrivals
+  autoCountdown = isDeparture ? 18 : 6;
   document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s`;
   clearInterval(autoInterval);
   autoInterval = setInterval(() => {

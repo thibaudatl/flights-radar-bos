@@ -500,18 +500,18 @@
     font-size: 1.05rem; letter-spacing: 3px; color: var(--muted);
   }
   .imm-binos {
-    display: flex; align-items: center; gap: 8px;
-    color: var(--pink);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    color: var(--pink); width: 100%;
   }
-  .imm-binos svg { width: 44px; height: 28px; }
+  .imm-binos svg { width: 54px; height: 34px; flex-shrink: 0; }
   @keyframes binos-pulse {
-    0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px var(--pink)); }
-    50%       { opacity: 0.55; filter: drop-shadow(0 0 2px var(--pink)); }
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px var(--pink)); }
+    50%       { opacity: 0.5; filter: drop-shadow(0 0 2px var(--pink)); }
   }
   .imm-binos svg { animation: binos-pulse 1.4s ease-in-out infinite; }
   .imm-binos-label {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 1.1rem; letter-spacing: 3px; color: var(--pink);
+    font-size: 1.3rem; letter-spacing: 4px; color: var(--pink);
   }
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; margin-top: 10px; }
 

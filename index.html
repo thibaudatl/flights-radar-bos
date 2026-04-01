@@ -69,6 +69,14 @@
     letter-spacing: 2px; align-self: flex-end;
     padding-bottom: 4px;
   }
+  .demo-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 3px;
+    color: #444; border: 1px solid #2a2a2a; background: transparent;
+    padding: 3px 8px; cursor: pointer; align-self: flex-end;
+    margin-bottom: 4px; transition: color 0.2s, border-color 0.2s;
+  }
+  .demo-btn:hover { color: var(--muted); border-color: #444; }
 
   /* ─── INFO ICON + POPOVER ─── */
   .info-wrap {
@@ -478,6 +486,13 @@
   .is-dep .imm-ring-icon { color: var(--amber); display: block; transform: rotate(-45deg); }
   .is-arr .imm-ring-icon { color: var(--blue);  display: block; transform: rotate(45deg);  }
   @keyframes ring-icon-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .imm-visible {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.05rem; letter-spacing: 3px; text-align: center;
+    margin-top: 6px; min-height: 1.2em;
+  }
+  .imm-visible-yes { color: var(--pink); }
+  .imm-visible-bearing { color: var(--muted); }
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; margin-top: 10px; }
 
   /* ─── EXPANDED ALERT ROW (phase 2) ─── */
@@ -716,6 +731,7 @@
   <div class="imm-callsign" id="immCallsign">UAL456</div>
   <div class="imm-airline"  id="immAirline">United Airlines</div>
   <div class="imm-dest"     id="immDest">→ Los Angeles · LAX</div>
+  <div class="imm-visible"  id="immVisible"></div>
   <div class="imm-meta" id="immMeta">
     <div class="imm-stat"><div class="imm-stat-label">AIRCRAFT</div><div class="imm-stat-value" id="immAcft">—</div></div>
     <div class="imm-stat"><div class="imm-stat-label">ALTITUDE</div><div class="imm-stat-value" id="immAlt">—</div></div>
@@ -732,6 +748,7 @@
   <div class="header-left">
     <div class="board-title">FLIGHT BOARD</div>
     <div class="version-badge" id="versionBadge"></div>
+    <button class="demo-btn" id="demoBtn" title="Preview imminent alert">DEMO</button>
     <div class="info-wrap">
       <button class="info-btn" id="infoBtn" title="Visibility info">i</button>
       <div class="info-popover" id="infoPopover">
@@ -834,6 +851,8 @@ const airport = { icao:'KBOS', lat:42.3656, lon:-71.0096 };
 // ─── VIEWER / OVERHEAD ────────────────────────────────────────────
 const VIEWER = { lat: 42.3662, lon: -71.0621 }; // apartment location
 const OVERHEAD_BEARING = 85; // bearing from apartment to KBOS (~due east)
+const VIS_MIN = 10;  // visible arc from apartment window: NNE
+const VIS_MAX = 160; // visible arc from apartment window: SSE
 
 // Bearing from apartment to a flight (degrees, 0=N clockwise)
 function bearingToFlight(f) {
@@ -965,6 +984,7 @@ function toggleInfo() {
 }
 document.getElementById('infoBtn').addEventListener('click', toggleInfo);
 document.getElementById('dismissBtn').addEventListener('click', () => dismissAlert());
+document.getElementById('demoBtn').addEventListener('click', triggerDemoAlert);
 document.getElementById('refreshBtn').addEventListener('click', () => {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
@@ -1332,10 +1352,15 @@ function renderList(id, flights, isDeparture){
     const acftLabel = f.acftType || acft(f.callsign, f.icao).t;
     const imm = isDeparture ? isImmDep(f) : isImmArr(f);
     const isExpandedAlert = imm && alertActive && f.callsign === currentAlertCallsign;
-    const bearing = bearingToFlight(f);
-    const isOverhead = bearing != null && Math.abs(bearing - OVERHEAD_BEARING) < 15;
+    const bearing   = bearingToFlight(f);
+    const isVisible = bearing != null && bearing >= VIS_MIN && bearing <= VIS_MAX;
     const isBoarding = !ghost && !imm && classify(f) === 'ground';
-    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : (isOverhead ? 'flight-row overhead' : (ghost ? 'flight-row ghost' : (isBoarding ? 'flight-row boarding' : 'flight-row')));
+    const classes = ['flight-row'];
+    if (imm) classes.push(isDeparture ? 'imm-dep' : 'imm-arr');
+    else if (ghost) classes.push('ghost');
+    else if (isBoarding) classes.push('boarding');
+    if (isVisible && !ghost) classes.push('overhead');
+    const rc = classes.join(' ');
     const vr = f.vertRate || 0;
     const altCls = (!isDeparture && vr > 200) ? 'alt-level' : vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
     const distMi = ghost ? null : dist(f) * 0.621371;
@@ -1471,6 +1496,16 @@ function showNextAlert() {
   document.getElementById('immDist').textContent  = distStr;
   document.getElementById('immDir').textContent   = dirStr;
 
+  const bearing    = bearingToFlight(f);
+  const isVisible  = bearing != null && bearing >= VIS_MIN && bearing <= VIS_MAX;
+  const bearingStr = bearing != null ? `BEARING ${Math.round(bearing)}° ${lookDir(bearing).card}` : '';
+  const visEl      = document.getElementById('immVisible');
+  if (isVisible) {
+    visEl.innerHTML = `<span class="imm-visible-yes">VISIBLE FROM WINDOW</span>&ensp;<span class="imm-visible-bearing">${bearingStr}</span>`;
+  } else {
+    visEl.innerHTML = `<span class="imm-visible-bearing">${bearingStr}</span>`;
+  }
+
   if (queuedMore > 0) {
     document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s  ·  +${queuedMore} IN QUEUE`;
   }
@@ -1548,6 +1583,35 @@ function dismissAlert(cs) {
   setTimeout(() => { renderBoards(); if (!alertActive && alertQueue.length > 0) showNextAlert(); }, 600);
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') dismissAlert(); });
+
+// ─── DEMO ALERT ───────────────────────────────────────────────────
+let _demoDepNext = true;
+function triggerDemoAlert() {
+  if (alertActive) { dismissAlert(); return; }
+  const isDep = _demoDepNext;
+  _demoDepNext = !_demoDepNext;
+
+  const cs = isDep ? 'UAL456' : 'DAL788';
+  routeCache[cs] = isDep
+    ? { origIata:'BOS', origCity:'Boston', destIata:'LAX', destCity:'Los Angeles', airlineName:'United Airlines', iataCs:'UA456' }
+    : { origIata:'ORD', origCity:'Chicago', destIata:'BOS', destCity:'Boston',     airlineName:'Delta Air Lines',  iataCs:'DL788' };
+
+  const f = {
+    callsign: cs, icao: 'a1b2c3', acftType: 'B738',
+    lat:      airport.lat + 0.018,
+    lon:      airport.lon + 0.010,
+    alt:      isDep ? 420  : 2600,
+    onGround: false,
+    speed:    isDep ? 185  : 155,
+    heading:  isDep ? 42   : 222,
+    vertRate: isDep ? 1800 : -1400,
+    geomRate: isDep ? 1800 : -1400,
+  };
+
+  dismissed.delete(cs); // ensure it isn't suppressed
+  alertQueue.unshift({ f, isDeparture: isDep });
+  showNextAlert();
+}
 
 
 // ─── DAILY COUNTER ───────────────────────────────────────────────

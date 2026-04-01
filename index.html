@@ -162,6 +162,19 @@
   .status-dot.error { background: var(--red); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
+  /* ─── FAA DELAY BANNER ─── */
+  .delay-banner {
+    display: none; align-items: center; gap: 14px;
+    padding: 7px 40px; flex-shrink: 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .delay-banner.ground-stop  { background:#1a0000; border-bottom:1px solid #ff2020; color:#ff6060; }
+  .delay-banner.ground-delay { background:#1a0e00; border-bottom:1px solid #ff8020; color:#ffb060; }
+  .delay-banner.arr-dep-delay{ background:#0e0e00; border-bottom:1px solid var(--amber); color:var(--amber); }
+  .delay-banner-icon { font-size:1rem; animation: pulse 1.5s infinite; }
+  .delay-banner-text { flex: 1; }
+
   /* ─── BOARDS ─── */
   .boards { display: flex; flex-direction: row; flex: 1; min-height: 0; position: relative; }
   .boards::after {
@@ -701,6 +714,12 @@
 </div>
 
 <!-- BOARDS -->
+<!-- FAA DELAY BANNER -->
+<div class="delay-banner" id="delayBanner">
+  <span class="delay-banner-icon" id="delayIcon">⚠</span>
+  <span class="delay-banner-text" id="delayText"></span>
+</div>
+
 <div class="boards">
   <div class="board dep">
     <div class="board-header">
@@ -740,7 +759,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.8';
+const VERSION = '1.6.9';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -1497,6 +1516,55 @@ setInterval(()=>{
   document.getElementById('refreshTimer').textContent=countdown;
   if(countdown<=0){ countdown=isDemo ? 10 : REFRESH; pollCount++; fetchFlights(); }
 },1000);
+
+// ─── FAA STATUS ───────────────────────────────────────────────────
+function faaText(el, tag) { const n = el.querySelector(tag); return n ? n.textContent.trim() : ''; }
+function faaReason(raw) {
+  return raw.replace('WX:', 'Weather: ').replace('TM Initiatives:', '').replace(/:/g, ' · ').trim();
+}
+
+async function fetchFAAStatus() {
+  const banner = document.getElementById('delayBanner');
+  const text   = document.getElementById('delayText');
+  try {
+    const res = await fetch('https://nasstatus.faa.gov/api/airport-status-information');
+    const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
+
+    const arptEls = (tag, parent) => [...xml.querySelectorAll(parent)].filter(el => faaText(el, 'ARPT') === 'BOS');
+
+    const stops   = arptEls('ARPT', 'Ground_Stop');
+    const delays  = arptEls('ARPT', 'Ground_Delay');
+    const adItems = arptEls('ARPT', 'Delay');
+
+    if (stops.length) {
+      const s = stops[0];
+      text.textContent = `GROUND STOP · ${faaReason(faaText(s,'Reason'))} · UNTIL ${faaText(s,'End_Time')}`;
+      banner.className = 'delay-banner ground-stop';
+      banner.style.display = 'flex';
+    } else if (delays.length) {
+      const d = delays[0];
+      text.textContent = `GROUND DELAY · ${faaReason(faaText(d,'Reason'))} · AVG ${faaText(d,'Avg')}`;
+      banner.className = 'delay-banner ground-delay';
+      banner.style.display = 'flex';
+    } else if (adItems.length) {
+      const parts = adItems.map(d => {
+        const ad = d.querySelector('Arrival_Departure');
+        const type = ad ? ad.getAttribute('Type').toUpperCase() : 'DELAY';
+        const min = faaText(d,'Min'), max = faaText(d,'Max'), trend = faaText(d,'Trend');
+        return `${type} DELAY · ${faaReason(faaText(d,'Reason'))} · ${min}–${max}${trend ? ' · '+trend.toUpperCase() : ''}`;
+      });
+      text.textContent = parts.join('   ·   ');
+      banner.className = 'delay-banner arr-dep-delay';
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  } catch(e) {
+    banner.style.display = 'none';
+  }
+}
+fetchFAAStatus();
+setInterval(fetchFAAStatus, 5 * 60 * 1000);
 
 // ─── INIT ─────────────────────────────────────────────────────────
 setTimeout(()=>{

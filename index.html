@@ -157,6 +157,18 @@
     font-size: 2.6rem; color: #d0d4dc; letter-spacing: 4px;
   }
   .status-bar { display: flex; align-items: center; gap: 12px; font-size: 1.1rem; color: var(--muted); letter-spacing: 1px; }
+  .refresh-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: none; background: transparent;
+    color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; line-height: 1;
+    transition: color 0.2s;
+    padding: 0;
+  }
+  .refresh-btn:hover { color: var(--text); }
+  .refresh-btn.spinning { animation: spin 0.5s ease-in-out; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); display: inline-block; }
   .status-dot.live  { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
   .status-dot.error { background: var(--red); }
@@ -468,6 +480,55 @@
   @keyframes ring-icon-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; margin-top: 10px; }
 
+  /* ─── EXPANDED ALERT ROW (phase 2) ─── */
+  .flight-row.expanded-alert {
+    display: flex !important; flex-direction: row;
+    align-items: center; height: auto !important;
+    min-height: 160px; padding: 20px 24px; gap: 32px;
+    animation: flipIn 0.3s ease-out;
+  }
+  .imm-row-left { flex: 1; min-width: 0; }
+  .imm-row-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase;
+    margin-bottom: 6px; animation: badge-blink 1s infinite;
+  }
+  .imm-dep .imm-row-badge { color: var(--amber); }
+  .imm-arr .imm-row-badge { color: var(--blue); }
+  .imm-row-callsign {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem; letter-spacing: 8px; line-height: 1;
+  }
+  .imm-dep .imm-row-callsign { color: var(--amber); text-shadow: 0 0 40px rgba(255,184,0,0.3); }
+  .imm-arr .imm-row-callsign { color: var(--blue);  text-shadow: 0 0 40px rgba(64,196,255,0.3); }
+  .imm-row-dest {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem; letter-spacing: 2px; margin-top: 4px; opacity: 0.8;
+  }
+  .imm-row-airline {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem; letter-spacing: 1px; opacity: 0.45; margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .imm-row-stats { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+  .imm-stat-row {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .imm-stat-row .imm-stat-label { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; }
+  .imm-stat-row .imm-stat-value { font-size: 1.1rem; letter-spacing: 1px; }
+  .imm-dep .imm-stat-row .imm-stat-value { color: var(--amber); }
+  .imm-arr .imm-stat-row .imm-stat-value { color: var(--blue); }
+  .imm-row-ring-col { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
+  .imm-dep .imm-ring-fg { stroke: var(--amber); }
+  .imm-arr .imm-ring-fg { stroke: var(--blue); }
+  .imm-dep .imm-ring-svg { animation: ring-glow-dep 1s ease-in-out infinite; }
+  .imm-arr .imm-ring-svg { animation: ring-glow-arr 1s ease-in-out infinite; }
+  @keyframes ring-glow-dep { 0%,100%{ filter:drop-shadow(0 0 4px var(--amber)); } 50%{ filter:drop-shadow(0 0 16px var(--amber)); } }
+  @keyframes ring-glow-arr { 0%,100%{ filter:drop-shadow(0 0 4px var(--blue));  } 50%{ filter:drop-shadow(0 0 16px var(--blue));  } }
+  .imm-dep .imm-ring-icon { color: var(--amber); display: block; }
+  .imm-arr .imm-ring-icon { color: var(--blue);  display: block; }
+
   /* ─── OVERHEAD ROW HIGHLIGHT ─── */
   .flight-row.overhead { border-left: 5px solid var(--pink); }
   .flight-row.overhead .cell-flight { color: var(--pink) !important; text-shadow: 0 0 12px rgba(255,110,199,0.7) !important; }
@@ -548,8 +609,8 @@
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.shadowColor  = 'rgba(210,228,255,0.95)';
-    ctx.shadowBlur   = 22;
-    ctx.font         = 'bold 34px serif';
+    ctx.shadowBlur   = 32;
+    ctx.font         = 'bold 52px serif';
     ctx.fillStyle    = '#ffffff';
     ctx.fillText('✈', 0, 0);
     ctx.shadowBlur   = 0;
@@ -705,6 +766,8 @@
     <div class="status-bar">
       <span class="status-dot" id="statusDot"></span>
       <span id="statusText">CONNECTING</span>
+      <span style="color:#444;font-size:0.8rem">·</span>
+      <button class="refresh-btn" id="refreshBtn" title="Force refresh">↻</button>
     </div>
     <div class="clock-wrap">
       <div class="clock" id="clock">--:--:--</div>
@@ -759,7 +822,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.9';
+const VERSION = '1.7.0';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -902,6 +965,12 @@ function toggleInfo() {
 }
 document.getElementById('infoBtn').addEventListener('click', toggleInfo);
 document.getElementById('dismissBtn').addEventListener('click', () => dismissAlert());
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.addEventListener('animationend', () => btn.classList.remove('spinning'), { once: true });
+  countdown = 0; pollCount++; fetchFlights();
+});
 document.addEventListener('click', e => {
   const wrap = document.querySelector('.info-wrap');
   if (wrap && !wrap.contains(e.target)) {
@@ -1262,6 +1331,7 @@ function renderList(id, flights, isDeparture){
     const alName = r?.airlineName || al?.name || '——';
     const acftLabel = f.acftType || acft(f.callsign, f.icao).t;
     const imm = isDeparture ? isImmDep(f) : isImmArr(f);
+    const isExpandedAlert = imm && alertActive && f.callsign === currentAlertCallsign;
     const bearing = bearingToFlight(f);
     const isOverhead = bearing != null && Math.abs(bearing - OVERHEAD_BEARING) < 15;
     const isBoarding = !ghost && !imm && classify(f) === 'ground';
@@ -1270,6 +1340,40 @@ function renderList(id, flights, isDeparture){
     const altCls = (!isDeparture && vr > 200) ? 'alt-level' : vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
     const distMi = ghost ? null : dist(f) * 0.621371;
     const [pillLabel, pillCls] = ghost ? ['DEPARTED', 's-departed'] : pill(f, isDeparture);
+
+    if (isExpandedAlert) {
+      const dst = `${isDeparture ? '→' : '←'} ${c.toUpperCase()}${ia ? ' · ' + ia : ''}`;
+      const altStr  = f.alt   ? f.alt.toLocaleString() + 'ft' : '—';
+      const spdStr  = f.speed ? f.speed + 'kts' : '—';
+      const distStr = distMi  ? distMi.toFixed(1) + 'mi' : '—';
+      const dirStr  = f.heading != null ? lookDir(f.heading).card : '—';
+      const planeRot = isDeparture ? -45 : 45;
+      return `<div class="${rc} expanded-alert">
+        <div class="imm-row-left">
+          <div class="imm-row-badge">${isDeparture ? 'NOW DEPARTING' : 'NOW LANDING'}</div>
+          <div class="imm-row-callsign">${cs}</div>
+          <div class="imm-row-dest">${dst}</div>
+          <div class="imm-row-airline">${alName}</div>
+        </div>
+        <div class="imm-row-stats">
+          <div class="imm-stat-row"><span class="imm-stat-label">ALT</span><span class="imm-stat-value ${altCls}">${altStr}</span></div>
+          <div class="imm-stat-row"><span class="imm-stat-label">SPD</span><span class="imm-stat-value">${spdStr}</span></div>
+          <div class="imm-stat-row"><span class="imm-stat-label">DIST</span><span class="imm-stat-value">${distStr}</span></div>
+          <div class="imm-stat-row"><span class="imm-stat-label">HDG</span><span class="imm-stat-value">${dirStr}</span></div>
+        </div>
+        <div class="imm-row-ring-col">
+          <div class="imm-ring-wrap" style="width:80px;height:80px;margin-top:0">
+            <svg class="imm-ring-svg" viewBox="0 0 100 100" width="80" height="80">
+              <circle class="imm-ring-bg" cx="50" cy="50" r="40"/>
+              <circle class="imm-ring-fg" id="immRingFg" cx="50" cy="50" r="40"/>
+            </svg>
+            <span class="imm-ring-icon" style="font-size:1.6rem;transform:rotate(${planeRot}deg)">✈</span>
+          </div>
+          <button class="imm-dismiss" onclick="dismissAlert()">DISMISS · ESC</button>
+        </div>
+      </div>`;
+    }
+
     return `<div class="${rc}" style="animation-delay:${rowIdx * 55}ms">
       <span class="cell cell-time">${t}</span>
       <span class="cell"><span class="cell-flight">${cs}</span><span class="status-pill ${pillCls}">${pillLabel}</span></span>
@@ -1298,7 +1402,11 @@ function renderList(id, flights, isDeparture){
 let alertQueue = [];   // pending {f, isDeparture} entries
 let alertActive = false;
 let autoInterval = null;
-let autoCountdown = 6;
+let autoCountdown = 18;
+let alertTotalTime = 18;
+let alertStartedAt = 0;
+let alertIsDeparture = true;
+let phaseTimer2 = null;
 let currentAlertCallsign = null;
 
 function checkAlerts(deps, arrs) {
@@ -1364,17 +1472,19 @@ function showNextAlert() {
     document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s  ·  +${queuedMore} IN QUEUE`;
   }
 
-  // Countdown — 18s departures, 6s arrivals
-  autoCountdown = isDeparture ? 18 : 6;
+  alertTotalTime   = 18;
+  alertStartedAt   = Date.now();
+  alertIsDeparture = isDeparture;
+  autoCountdown    = 18;
   clearInterval(autoInterval);
 
-  // Ring countdown — drain stroke-dashoffset from 0 → 251 over countdown duration
+  // Ring drains over the full 18s in the overlay
   const ring = document.getElementById('immRingFg');
   const circ = 2 * Math.PI * 40; // 251.3
   ring.style.transition = 'none';
   ring.style.strokeDashoffset = '0';
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    ring.style.transition = `stroke-dashoffset ${autoCountdown}s linear`;
+    ring.style.transition = `stroke-dashoffset ${alertTotalTime}s linear`;
     ring.style.strokeDashoffset = circ.toString();
   }));
 
@@ -1382,20 +1492,57 @@ function showNextAlert() {
     autoCountdown--;
     if (autoCountdown <= 0) { clearInterval(autoInterval); dismissAlert(f.callsign); }
   }, 1000);
+
+  // Phase 2: at 10s collapse overlay → expand board row
+  clearTimeout(phaseTimer2);
+  phaseTimer2 = setTimeout(enterPhase2, 10000);
+}
+
+function enterPhase2() {
+  if (!alertActive) return;
+  // Clear overlay ring ID so startRowRing will find the expanded row's ring
+  const ovRing = document.querySelector('#immOverlay circle.imm-ring-fg');
+  if (ovRing) ovRing.removeAttribute('id');
+  // Hide overlay
+  document.getElementById('immOverlay').className = 'imm-overlay';
+  // Render boards — this draws the expanded alert row with its own ring
+  renderBoards();
+  startRowRing();
+}
+
+function startRowRing() {
+  const ring = document.getElementById('immRingFg');
+  if (!ring) return;
+  const circ = 2 * Math.PI * 40;
+  const elapsed   = Math.min(alertTotalTime, (Date.now() - alertStartedAt) / 1000);
+  const remaining = Math.max(0, alertTotalTime - elapsed);
+  const startOffset = circ * (elapsed / alertTotalTime);
+  ring.style.transition = 'none';
+  ring.style.strokeDashoffset = startOffset.toString();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    ring.style.transition = `stroke-dashoffset ${remaining}s linear`;
+    ring.style.strokeDashoffset = circ.toString();
+  }));
 }
 
 function dismissAlert(cs) {
   alertActive = false;
   clearInterval(autoInterval);
+  clearTimeout(phaseTimer2);
+  // Hide overlay
+  const overlay = document.getElementById('immOverlay');
+  overlay.className = 'imm-overlay';
+  // Restore overlay ring ID (may have been cleared in enterPhase2)
+  const ovRing = overlay.querySelector('circle.imm-ring-fg');
+  if (ovRing && !ovRing.id) ovRing.id = 'immRingFg';
+  // Reset ring state
   const ring = document.getElementById('immRingFg');
-  ring.style.transition = 'none';
-  ring.style.strokeDashoffset = '0';
-  document.getElementById('immOverlay').className = 'imm-overlay';
+  if (ring) { ring.style.transition = 'none'; ring.style.strokeDashoffset = '0'; }
   const toAdd = cs || currentAlertCallsign;
   if (toAdd) { dismissed.add(toAdd); sessionStorage.setItem('bos_dismissed', JSON.stringify([...dismissed])); }
   currentAlertCallsign = null;
-  // Fire next in queue after a short breath
-  setTimeout(() => { if (!alertActive && alertQueue.length > 0) showNextAlert(); }, 600);
+  // Re-render collapses expanded row, then check for next alert
+  setTimeout(() => { renderBoards(); if (!alertActive && alertQueue.length > 0) showNextAlert(); }, 600);
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') dismissAlert(); });
 

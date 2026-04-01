@@ -65,7 +65,7 @@
   }
   .version-badge {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem; color: #6a6d72;
+    font-size: 0.85rem; color: #6a6d72;
     letter-spacing: 2px; align-self: flex-end;
     padding-bottom: 4px;
   }
@@ -98,15 +98,15 @@
     position: absolute;
     top: calc(100% + 12px);
     left: 0;
-    width: 320px;
+    width: 380px;
     background: #13151a;
     border: 1px solid #2a2d32;
-    padding: 18px 20px;
+    padding: 20px 24px;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.78rem;
     color: #9aa0a8;
-    letter-spacing: 0.5px;
-    line-height: 1.8;
+    letter-spacing: 0.3px;
+    line-height: 1.6;
     z-index: 999;
     box-shadow: 0 8px 32px rgba(0,0,0,0.6);
     opacity: 0;
@@ -120,29 +120,30 @@
     transform: translateY(0);
   }
   .info-popover h4 {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
     color: #c8cdd6;
     letter-spacing: 3px;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     border-bottom: 1px solid #2a2d32;
     padding-bottom: 8px;
   }
   .info-popover .info-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 4px;
+    gap: 16px;
+    margin-bottom: 6px;
   }
-  .info-popover .info-label { color: #4a4d54; }
-  .info-popover .info-val   { color: #c8cdd6; font-weight: 700; }
+  .info-popover .info-label { color: #6a7080; flex-shrink: 0; }
+  .info-popover .info-val   { color: #c8cdd6; font-weight: 400; text-align: right; }
   .info-popover .info-val.amber { color: var(--amber); }
   .info-popover .info-val.blue  { color: var(--blue); }
   .info-popover .info-divider {
     border: none; border-top: 1px solid #1e2024;
-    margin: 10px 0;
+    margin: 12px 0;
   }
   .info-popover .info-note {
-    font-size: 0.63rem; color: #3a3d42; line-height: 1.7; margin-top: 8px;
+    font-size: 0.7rem; color: #555a62; line-height: 1.7; margin-top: 10px;
   }
   .airport-name {
     font-size: 0.75rem; color: #6b7280;
@@ -198,9 +199,12 @@
   .arr .board-dot { background: var(--blue);  box-shadow: 0 0 6px var(--blue); }
 
   /* ─── COLUMNS ─── */
+  /* Widths sized to exact content at 20px base, Share Tech Mono 0.6em/char:
+     TIME 72 | FLIGHT 106 | DEST 1fr | ACFT 100 | ALT 106 | DIST 80 | DIR 44
+     Fixed total 508px + 6×14px gap + 40px padding = 632px → 328px for dest on TV */
   .col-headers {
     display: grid;
-    grid-template-columns: 72px 120px 1fr 120px 108px 86px 62px; column-gap: 14px;
+    grid-template-columns: 72px 106px 1fr 100px 106px 80px 44px; column-gap: 14px;
     padding: 6px 20px;
     font-size: 0.85rem; color: #8a8880; letter-spacing: 1px;
     background: #0e0e0e;
@@ -211,8 +215,8 @@
   .flight-list { flex: 1; min-height: 0; overflow: hidden; }
   .flight-row {
     display: grid;
-    grid-template-columns: 72px 120px 1fr 120px 108px 86px 62px; column-gap: 14px;
-    padding: 0 20px; height: 92px;
+    grid-template-columns: 72px 106px 1fr 100px 106px 80px 44px; column-gap: 14px;
+    padding: 0 20px; height: 88px;
     align-items: center;
     border-bottom: 1px solid #161616;
     animation: flipIn 0.35s ease-out;
@@ -222,42 +226,48 @@
   .flight-row:hover { background: #1a1500; }
   .flight-row.imm-dep { background: #180a00 !important; border-left: 3px solid var(--amber); animation: flipIn 0.35s ease-out, pulse-dep 1.2s infinite; }
   .flight-row.imm-arr { background: #00101a !important; border-left: 3px solid var(--blue);  animation: flipIn 0.35s ease-out, pulse-arr 1.2s infinite; }
-  .flight-row.ghost   { opacity: 0.55; }
+  .flight-row.ghost   { opacity: 0.5; border-left: 3px solid #333; }
   @keyframes pulse-dep { 0%,100%{border-left-color:var(--amber)} 50%{border-left-color:transparent} }
   @keyframes pulse-arr { 0%,100%{border-left-color:var(--blue)}  50%{border-left-color:transparent} }
 
   @keyframes flipIn { from{opacity:0;transform:rotateX(-80deg) translateY(-6px)} to{opacity:1;transform:none} }
 
-  .cell { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; letter-spacing: 1px; white-space: nowrap; }
+  .cell { font-family: 'Share Tech Mono', monospace; font-size: 1.05rem; letter-spacing: 1px; white-space: nowrap; }
 
-  /* Shared */
-  .cell-time              { color: #d0d0d0; font-size: 1.15rem; font-weight: 700; }
+  /* TIME — 72px col, "08:45" 5ch @ 1.15rem(23px) = 69px */
+  .cell-time { color: #d0d0d0; font-size: 1.15rem; font-weight: 700; }
 
-  /* Departures */
-  .dep .cell-flight       { color: var(--amber); font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(255,184,0,0.5); }
-  .dep .cell-dest-city    { color: var(--text); font-size: 1.35rem; display: block; }
-  .dep .cell-dest-iata    { color: var(--amber); font-size: 1.05rem; display: block; margin-top: 2px; }
-  .dep .cell-airline-name { color: var(--amber-dim); font-size: 0.9rem; display: block; letter-spacing: 0px; white-space: nowrap; margin-top: 2px; }
-  .dep .cell-acft-type    { color: var(--amber); font-size: 1.1rem; display: block; }
-  .dep .cell-acft-sub     { color: var(--amber-dim); font-size: 0.8rem; display: block; margin-top: 2px; }
+  /* FLIGHT — 106px col, "AA1234" 6ch @ 1.2rem(24px) + ls3px×5 = 101px */
+  .dep .cell-flight { color: var(--amber); font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(255,184,0,0.5); display: block; }
+  .arr .cell-flight { color: var(--blue);  font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(64,196,255,0.5);  display: block; }
 
-  /* Arrivals */
-  .arr .cell-flight       { color: var(--blue); font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(64,196,255,0.5); }
-  .arr .cell-dest-city    { color: var(--text); font-size: 1.35rem; display: block; }
-  .arr .cell-dest-iata    { color: var(--blue); font-size: 1.05rem; display: block; margin-top: 2px; }
-  .arr .cell-airline-name { color: var(--blue-dim); font-size: 0.9rem; display: block; letter-spacing: 0px; white-space: nowrap; margin-top: 2px; }
-  .arr .cell-acft-type    { color: var(--blue); font-size: 1.1rem; display: block; }
-  .arr .cell-acft-sub     { color: #235060; font-size: 0.8rem; display: block; margin-top: 2px; }
+  /* DESTINATION — 1fr (~328px on TV), "LOS ANGELES" 11ch @ 1.3rem = 171px */
+  .dep .cell-dest-city    { color: var(--text);      font-size: 1.3rem;  display: block; }
+  .dep .cell-dest-iata    { color: var(--amber);     font-size: 1.05rem; display: block; margin-top: 2px; }
+  .dep .cell-airline-name { color: var(--amber-dim); font-size: 0.9rem;  display: block; letter-spacing: 0; white-space: nowrap; margin-top: 2px; }
+  .arr .cell-dest-city    { color: var(--text);      font-size: 1.3rem;  display: block; }
+  .arr .cell-dest-iata    { color: var(--blue);      font-size: 1.05rem; display: block; margin-top: 2px; }
+  .arr .cell-airline-name { color: var(--blue-dim);  font-size: 0.9rem;  display: block; letter-spacing: 0; white-space: nowrap; margin-top: 2px; }
 
-  /* ALT / DIST / DIR */
-  .cell-alt  { font-size: 1.05rem; white-space: nowrap; }
+  /* AIRCRAFT — 100px col, subtitle "A321LR/XLR" 10ch @ 0.8rem(16px) = 96px */
+  .dep .cell-acft-type { color: var(--amber); font-size: 1.1rem; display: block; }
+  .dep .cell-acft-sub  { color: var(--amber-dim); font-size: 0.8rem; display: block; margin-top: 2px; }
+  .arr .cell-acft-type { color: var(--blue);  font-size: 1.1rem; display: block; }
+  .arr .cell-acft-sub  { color: #235060;      font-size: 0.8rem; display: block; margin-top: 2px; }
+
+  /* ALT — 106px col, "42,000ft" 8ch @ 1.05rem(21px) = 101px */
+  .cell-alt { font-size: 1.05rem; white-space: nowrap; }
   .cell-alt.alt-climb   { color: var(--green); }
   .cell-alt.alt-level   { color: #b0b0b0; }
   .cell-alt.alt-descend { color: #ff6060; }
+
+  /* DIST — 80px col, "62.0mi" 6ch @ 1.05rem(21px) = 76px */
   .dep .cell-dist { color: var(--amber); font-size: 1.05rem; white-space: nowrap; }
   .arr .cell-dist { color: var(--blue);  font-size: 1.05rem; white-space: nowrap; }
-  .dep .cell-dir  { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; }
-  .arr .cell-dir  { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; }
+
+  /* DIR — 44px col, "NNW" 3ch @ 1.05rem(21px) = 38px */
+  .dep .cell-dir { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; }
+  .arr .cell-dir { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; }
 
   /* Airline country badge — replaces emoji flags */
   .cell-airline-flag {
@@ -275,14 +285,15 @@
   }
 
   /* Pills */
-  .status-pill { display: inline-block; font-size: 0.57rem; padding: 2px 7px; letter-spacing: 1px; border-radius: 2px; text-transform: uppercase; }
+  .status-pill { display: inline-block; font-size: 0.57rem; padding: 2px 7px; letter-spacing: 1px; border-radius: 2px; text-transform: uppercase; margin-top: 5px; }
+  .s-departed { background:#111; color:#555; border:1px solid #333; }
   .s-approach { background:#07121c; color:var(--blue);  border:1px solid var(--blue-dim); }
   .s-climb    { background:#1a1200; color:var(--amber); border:1px solid var(--amber-dim); }
-  .s-cruise   { background:#161616; color:#888;         border:1px solid #2a2a2a; }
-  .s-ground   { background:#160808; color:#777;         border:1px solid #331010; }
-  .s-enroute  { background:#0a1a0a; color:var(--green); border:1px solid var(--green-dim); }
+  .s-cruise   { background:#111418; color:#4a5060;      border:1px solid #252830; }
+  .s-ground   { background:#111418; color:#6a7080;      border:1px solid #252830; }
+  .s-enroute  { background:#111418; color:#7a8898;      border:1px solid #3a4450; }
   .s-imm-dep  { background:#2a0800; color:#ff8060;      border:1px solid #ff4020; animation:blink-d 0.65s infinite; }
-  .s-imm-arr  { background:#001828; color:#60d0ff;      border:1px solid var(--blue); animation:blink-a 0.65s infinite; }
+  .s-imm-arr  { background:#2a0800; color:#ff8060;      border:1px solid #ff4020; animation:blink-a 0.65s infinite; }
   @keyframes blink-d { 0%,100%{opacity:1} 50%{opacity:0.35} }
   @keyframes blink-a { 0%,100%{opacity:1} 50%{opacity:0.3}  }
 
@@ -292,8 +303,6 @@
   @keyframes radar-sweep { 0%,100%{opacity:0.1;transform:scale(0.95)} 50%{opacity:0.3;transform:scale(1.05)} }
 
   /* Bottom bar */
-  .bottom-bar { background:#080808;border-top:2px solid #1e1e1e;padding:9px 28px;display:flex;align-items:center;gap:28px;font-size:0.78rem;color:#888;letter-spacing:1.5px;flex-shrink:0;font-family:'Share Tech Mono',monospace; }
-  .bottom-bar .coord { color:#9a8850;font-family:'Share Tech Mono',monospace; }
   .refresh-timer { margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#777; }
 
   /* Ticker */
@@ -373,7 +382,7 @@
 
   .imm-airline {
     font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(0.75rem, 1.8vw, 1.1rem);
+    font-size: clamp(1.1rem, 2.5vw, 1.8rem);
     letter-spacing: 4px; text-align: center; opacity: 0.55;
     text-transform: uppercase; margin-bottom: 4px;
   }
@@ -393,8 +402,8 @@
     display: flex; gap: 32px; align-items: flex-start; justify-content: center;
   }
   .imm-stat { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .imm-stat-label { font-size: 0.5rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; }
-  .imm-stat-value { font-size: 1.3rem; letter-spacing: 2px; }
+  .imm-stat-label { font-size: 0.75rem; letter-spacing: 3px; opacity: 0.65; text-transform: uppercase; }
+  .imm-stat-value { font-size: 1.9rem; letter-spacing: 2px; }
   .is-dep .imm-stat-value { color: var(--amber); }
   .is-arr .imm-stat-value { color: var(--blue); }
   .imm-stat-value.alt-climb   { color: var(--green) !important; }
@@ -607,18 +616,25 @@
       <button class="info-btn" id="infoBtn" title="Visibility info">i</button>
       <div class="info-popover" id="infoPopover">
         <h4>Flight Criteria</h4>
-        <div class="info-row"><span class="info-label">Data source</span><span class="info-val">ADSB.LOL · ADSBDB</span></div>
-        <div class="info-row"><span class="info-label">Poll interval</span><span class="info-val">Every 5s · Board 30s</span></div>
-        <div class="info-row"><span class="info-label">Flights shown</span><span class="info-val amber">Mainline commercial only</span></div>
-        <div class="info-row"><span class="info-label">Excluded</span><span class="info-val">Regional, cargo, private</span></div>
+        <div class="info-row"><span class="info-label">Version</span><span class="info-val" id="infoVersion">—</span></div>
+        <div class="info-row"><span class="info-label">Data source</span><span class="info-val">ADSB.LOL</span></div>
+        <div class="info-row"><span class="info-label">Poll interval</span><span class="info-val">30s</span></div>
+        <div class="info-row"><span class="info-label">Flights shown</span><span class="info-val">Commercial · regional included</span></div>
         <hr class="info-divider">
-        <div class="info-row"><span class="info-label">Departures</span><span class="info-val amber">Climbing · within 20km of BOS</span></div>
-        <div class="info-row"><span class="info-label">Arrivals</span><span class="info-val blue">Approach · within 60km of BOS</span></div>
-        <div class="info-row"><span class="info-label">Imminent dep</span><span class="info-val amber">200–5,000ft · within 5km</span></div>
-        <div class="info-row"><span class="info-label">Imminent arr</span><span class="info-val blue">200–4,000ft · within 6km</span></div>
+        <div class="info-row"><span class="info-label">Departures</span><span class="info-val amber">Climbing from BOS · within 60km</span></div>
+        <div class="info-row"><span class="info-label">Arrivals</span><span class="info-val blue">Descending to BOS · within 80km</span></div>
+        <div class="info-row"><span class="info-label">DEPARTING flash</span><span class="info-val amber">Airborne · climbing · within 4km of BOS</span></div>
+        <div class="info-row"><span class="info-label">LANDING flash</span><span class="info-val blue">Airborne · descending · within 4km of BOS</span></div>
         <hr class="info-divider">
+        <div class="info-row"><span class="info-label">BOARDING</span><span class="info-val">On ground at BOS</span></div>
+        <div class="info-row"><span class="info-label">CLIMBING</span><span class="info-val amber">Ascending · below 15,000ft</span></div>
+        <div class="info-row"><span class="info-label">ENROUTE</span><span class="info-val" style="color:#fff">Cruising · above 20,000ft or level</span></div>
+        <div class="info-row"><span class="info-label">DESCENDING</span><span class="info-val blue">Losing altitude · below 8,000ft</span></div>
+        <div class="info-row"><span class="info-label">DEPARTED</span><span class="info-val">Left ADS-B range — last 5 shown</span></div>
+        <hr class="info-divider">
+        <div class="info-row"><span class="info-label">Pink row</span><span class="info-val" style="color:var(--pink)">Currently visible in your window</span></div>
         <div class="info-row"><span class="info-label">Airport</span><span class="info-val">42.3656°N  71.0096°W</span></div>
-        <div class="info-note">ALT color: green = climbing · grey = level · red = descending. DIR shows the aircraft's heading.</div>
+        <div class="info-note">ALT color: green = climbing · grey = level · red = descending. DIR shows aircraft heading.</div>
       </div>
     </div>
     <div class="airport-name">
@@ -670,22 +686,19 @@
 
 <div class="ticker" id="ticker"><span class="ticker-inner" id="tickerInner"></span></div>
 
-<!-- BOTTOM BAR -->
-<div class="bottom-bar">
-  <span>BOS · <span class="coord">42.3656°N  71.0096°W</span></span>
-  <span>TRACKED: <span class="coord" id="totalTracked">--</span></span>
-  <span>SOURCE: ADSB.LOL</span>
-  <span>↑ <span class="coord" id="depToday">0</span> · ↓ <span class="coord" id="arrToday">0</span> TODAY</span>
-  <span class="refresh-timer">NEXT REFRESH IN <span id="refreshTimer">5</span>s</span>
+<!-- BOTTOM BAR (hidden, kept for JS element refs) -->
+<div style="display:none">
+  <span id="totalTracked"></span>
+  <span id="refreshTimer"></span>
 </div>
-
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.6';
+const VERSION = '1.6.7';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
+document.getElementById('infoVersion').textContent   = `v${VERSION}`;
 document.getElementById('loadingVersion').textContent = `${VERSION} · 2026.03.30`;
 
 const airport = { icao:'KBOS', lat:42.3656, lon:-71.0096 };
@@ -1056,12 +1069,21 @@ function isImmDep(f){
       && vr  > 300     // confirmed powered climb
       && dist(f) < 4;  // tight to KBOS runway complex
 }
-function isImmArr(f){ const a=f.alt||0; return classify(f)==='approach'&&a>=200&&a<=4000&&dist(f)<6; }
+function isImmArr(f){
+  if(f.onGround) return false;
+  const a   = f.alt   || 0;
+  const spd = f.speed || 0;
+  const vr  = f.geomRate || f.vertRate || 0;
+  return a < 4000     // low altitude on final
+      && spd >= 100   // ruled out slow/stationary
+      && vr  < -300   // confirmed descent
+      && dist(f) < 4; // tight to KBOS
+}
 
 function pill(f, isDeparture){
   if(isDeparture&&isImmDep(f)) return ['DEPARTING','s-imm-dep'];
   if(!isDeparture&&isImmArr(f)) return ['LANDING','s-imm-arr'];
-  const m={approach:['APPROACH','s-approach'],climb:['CLIMBING','s-climb'],cruise:['ENROUTE','s-cruise'],enroute:['ENROUTE','s-enroute'],ground:['ON GROUND','s-ground']};
+  const m={approach:['DESCENDING','s-approach'],climb:['CLIMBING','s-climb'],cruise:['ENROUTE','s-enroute'],enroute:['ENROUTE','s-enroute'],ground:['BOARDING','s-ground']};
   return m[classify(f)]||['——','s-ground'];
 }
 
@@ -1114,19 +1136,20 @@ function logDeparture(f) {
 // ghost stub (lat/lon/alt/speed null) when the plane has flown out.
 function buildDepRows() {
   const liveMap = new Map(allFlights.map(f => [f.callsign, f]));
-  return departedLog.slice(0, 5).map(entry =>
-    liveMap.get(entry.callsign) || {
+  return departedLog.slice(0, 5).map(entry => {
+    const live = liveMap.get(entry.callsign);
+    return (live && (isDep(live) || isImmDep(live))) ? live : {
       callsign: entry.callsign,
       _depTime: entry.depTime,
       lat: null, lon: null, alt: null, speed: null,
       heading: null, vertRate: 0, icao: '------',
-    }
-  );
+    };
+  });
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────
 function renderBoards(){
-  const liveDeps = allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f)&&!dismissed.has(f.callsign));
+  const liveDeps = allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f));
   const arrs     = allFlights.filter(f=>isArr(f)&&isLikelyCommercial(f)).sort((a,b)=>dist(a)-dist(b));
 
   // isImmDep flights are unambiguously BOS departures — log them immediately,
@@ -1172,10 +1195,11 @@ function renderList(id, flights, isDeparture){
     const vr = f.vertRate || 0;
     const altCls = vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
     const distMi = ghost ? null : dist(f) * 0.621371;
+    const [pillLabel, pillCls] = ghost ? ['DEPARTED', 's-departed'] : pill(f, isDeparture);
     return `<div class="${rc}">
       <span class="cell cell-time">${t}</span>
-      <span class="cell cell-flight">${cs}</span>
-      <span class="cell"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia ? `<span class="cell-dest-iata">${ia}</span>` : ''}<span class="cell-airline-name">${alName}</span></span>
+      <span class="cell"><span class="cell-flight">${cs}</span><span class="status-pill ${pillCls}">${pillLabel}</span></span>
+      <span class="cell cell-dest"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia ? `<span class="cell-dest-iata">${ia}</span>` : ''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${acftLabel}</span></span>
       <span class="cell cell-alt ${altCls}">${f.alt != null ? f.alt.toLocaleString() + 'ft' : '——'}</span>
       <span class="cell cell-dist">${distMi != null ? distMi.toFixed(1) + 'mi' : '——'}</span>

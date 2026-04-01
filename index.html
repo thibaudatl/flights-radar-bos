@@ -1412,8 +1412,11 @@ let currentAlertCallsign = null;
 function checkAlerts(deps, arrs) {
   // Build full candidate list sorted: arrivals first (more dramatic),
   // then by distance to airport (closest first)
+  // For imminent arrivals, scan allFlights directly — bypasses isArr/isCommercial
+  // so a physically landing flight always alerts even if its route lookup failed.
+  const immArrs = allFlights.filter(f => isImmArr(f) && isLikelyCommercial(f));
   const cands = [
-    ...arrs.filter(isImmArr).map(f=>({f, isDeparture:false, d:dist(f)})),
+    ...immArrs.map(f=>({f, isDeparture:false, d:dist(f)})),
     ...deps.filter(isImmDep).map(f=>({f, isDeparture:true,  d:dist(f)})),
   ]
   .filter(({f}) => !dismissed.has(f.callsign))

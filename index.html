@@ -51,7 +51,7 @@
   .header {
     background: var(--header-bg);
     border-bottom: 3px solid #3a3d42;
-    padding: 8px 40px;
+    padding: 6px 40px;
     display: flex; align-items: center; justify-content: space-between;
     flex-shrink: 0;
   }
@@ -180,7 +180,7 @@
 
   .board-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 16px; border-bottom: 1px solid #1e1e1e;
+    padding: 10px 16px; border-bottom: 1px solid #1e1e1e;
     flex-shrink: 0;
   }
   .board-label {
@@ -200,11 +200,11 @@
 
   /* ─── COLUMNS ─── */
   /* Widths sized to exact content at 20px base, Share Tech Mono 0.6em/char:
-     TIME 72 | FLIGHT 106 | DEST 1fr | ACFT 100 | ALT 106 | DIST 80 | DIR 44
-     Fixed total 508px + 6×14px gap + 40px padding = 632px → 328px for dest on TV */
+     TIME 72 | FLIGHT 120 | DEST 1fr | ACFT 100 | ALT 106 | DIST 80 | DIR 44
+     Fixed total 522px + 6×14px gap + 40px padding = 646px → dest fills remainder */
   .col-headers {
     display: grid;
-    grid-template-columns: 72px 106px 1fr 100px 106px 80px 44px; column-gap: 14px;
+    grid-template-columns: 72px 120px 1fr 100px 106px 80px 44px; column-gap: 14px;
     padding: 6px 20px;
     font-size: 0.85rem; color: #8a8880; letter-spacing: 1px;
     background: #0e0e0e;
@@ -212,10 +212,10 @@
     flex-shrink: 0;
   }
   .col-headers span { text-align: left; }
-  .flight-list { flex: 1; min-height: 0; overflow: hidden; }
+  .flight-list { flex: 1; min-height: 0; overflow: hidden; perspective: 600px; }
   .flight-row {
     display: grid;
-    grid-template-columns: 72px 106px 1fr 100px 106px 80px 44px; column-gap: 14px;
+    grid-template-columns: 72px 120px 1fr 100px 106px 80px 44px; column-gap: 14px;
     padding: 0 20px; height: 88px;
     align-items: center;
     border-bottom: 1px solid #161616;
@@ -226,28 +226,33 @@
   .flight-row:hover { background: #1a1500; }
   .flight-row.imm-dep { background: #180a00 !important; border-left: 3px solid var(--amber); animation: flipIn 0.35s ease-out, pulse-dep 1.2s infinite; }
   .flight-row.imm-arr { background: #00101a !important; border-left: 3px solid var(--blue);  animation: flipIn 0.35s ease-out, pulse-arr 1.2s infinite; }
-  .flight-row.ghost   { opacity: 0.5; border-left: 3px solid #333; }
+  .flight-row.ghost    { opacity: 0.5; border-left: 3px solid #333; }
+  .flight-row.boarding { opacity: 0.6; }
   @keyframes pulse-dep { 0%,100%{border-left-color:var(--amber)} 50%{border-left-color:transparent} }
   @keyframes pulse-arr { 0%,100%{border-left-color:var(--blue)}  50%{border-left-color:transparent} }
 
-  @keyframes flipIn { from{opacity:0;transform:rotateX(-80deg) translateY(-6px)} to{opacity:1;transform:none} }
+  @keyframes flipIn {
+    0%   { opacity:0; transform: rotateX(-90deg) translateY(-4px); }
+    60%  { opacity:1; transform: rotateX(6deg); }
+    100% { opacity:1; transform: rotateX(0deg); }
+  }
 
   .cell { font-family: 'Share Tech Mono', monospace; font-size: 1.05rem; letter-spacing: 1px; white-space: nowrap; }
 
   /* TIME — 72px col, "08:45" 5ch @ 1.15rem(23px) = 69px */
   .cell-time { color: #d0d0d0; font-size: 1.15rem; font-weight: 700; }
 
-  /* FLIGHT — 106px col, "AA1234" 6ch @ 1.2rem(24px) + ls3px×5 = 101px */
-  .dep .cell-flight { color: var(--amber); font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(255,184,0,0.5); display: block; }
-  .arr .cell-flight { color: var(--blue);  font-weight: 700; font-size: 1.2rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(64,196,255,0.5);  display: block; }
+  /* FLIGHT — 120px col, "AA1234" 6ch @ 1.4rem(28px) + ls3px×5 = 116px */
+  .dep .cell-flight { color: var(--amber); font-weight: 700; font-size: 1.4rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(255,184,0,0.5); display: block; }
+  .arr .cell-flight { color: var(--blue);  font-weight: 700; font-size: 1.4rem; letter-spacing: 3px; text-shadow: 0 0 8px rgba(64,196,255,0.5);  display: block; }
 
-  /* DESTINATION — 1fr (~328px on TV), "LOS ANGELES" 11ch @ 1.3rem = 171px */
-  .dep .cell-dest-city    { color: var(--text);      font-size: 1.3rem;  display: block; }
-  .dep .cell-dest-iata    { color: var(--amber);     font-size: 1.05rem; display: block; margin-top: 2px; }
-  .dep .cell-airline-name { color: var(--amber-dim); font-size: 0.9rem;  display: block; letter-spacing: 0; white-space: nowrap; margin-top: 2px; }
-  .arr .cell-dest-city    { color: var(--text);      font-size: 1.3rem;  display: block; }
-  .arr .cell-dest-iata    { color: var(--blue);      font-size: 1.05rem; display: block; margin-top: 2px; }
-  .arr .cell-airline-name { color: var(--blue-dim);  font-size: 0.9rem;  display: block; letter-spacing: 0; white-space: nowrap; margin-top: 2px; }
+  /* DESTINATION — 1fr, city 1.5rem, IATA 1.2rem, airline 1.0rem */
+  .dep .cell-dest-city    { color: var(--text);      font-size: 1.5rem;  display: block; }
+  .dep .cell-dest-iata    { color: var(--amber);     font-size: 1.2rem;  display: block; margin-top: 2px; }
+  .dep .cell-airline-name { color: var(--amber-dim); font-size: 1.0rem;  display: block; letter-spacing: 0; white-space: nowrap; margin-top: 2px; }
+  .arr .cell-dest-city    { color: var(--text);      font-size: 1.5rem;  display: block; }
+  .arr .cell-dest-iata    { color: var(--blue);      font-size: 1.2rem;  display: block; margin-top: 2px; }
+  .arr .cell-airline-name { color: var(--blue-dim);  font-size: 1.0rem;  display: block; letter-spacing: 0; white-space: nowrap; margin-top: 2px; }
 
   /* AIRCRAFT — 100px col, subtitle "A321LR/XLR" 10ch @ 0.8rem(16px) = 96px */
   .dep .cell-acft-type { color: var(--amber); font-size: 1.1rem; display: block; }
@@ -256,18 +261,18 @@
   .arr .cell-acft-sub  { color: #235060;      font-size: 0.8rem; display: block; margin-top: 2px; }
 
   /* ALT — 106px col, "42,000ft" 8ch @ 1.05rem(21px) = 101px */
-  .cell-alt { font-size: 1.05rem; white-space: nowrap; }
-  .cell-alt.alt-climb   { color: var(--green); }
+  .cell-alt { font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
+  .cell-alt.alt-climb   { color: var(--green); opacity: 1; }
   .cell-alt.alt-level   { color: #b0b0b0; }
-  .cell-alt.alt-descend { color: #ff6060; }
+  .cell-alt.alt-descend { color: #ff6060; opacity: 1; }
 
   /* DIST — 80px col, "62.0mi" 6ch @ 1.05rem(21px) = 76px */
-  .dep .cell-dist { color: var(--amber); font-size: 1.05rem; white-space: nowrap; }
-  .arr .cell-dist { color: var(--blue);  font-size: 1.05rem; white-space: nowrap; }
+  .dep .cell-dist { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
+  .arr .cell-dist { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
 
   /* DIR — 44px col, "NNW" 3ch @ 1.05rem(21px) = 38px */
-  .dep .cell-dir { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; }
-  .arr .cell-dir { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; }
+  .dep .cell-dir { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
+  .arr .cell-dir { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
 
   /* Airline country badge — replaces emoji flags */
   .cell-airline-flag {
@@ -285,15 +290,15 @@
   }
 
   /* Pills */
-  .status-pill { display: inline-block; font-size: 0.57rem; padding: 2px 7px; letter-spacing: 1px; border-radius: 2px; text-transform: uppercase; margin-top: 5px; }
+  .status-pill { display: inline-block; font-size: 0.62rem; padding: 2px 7px; letter-spacing: 1px; border-radius: 2px; text-transform: uppercase; margin-top: 5px; }
   .s-departed { background:#111; color:#555; border:1px solid #333; }
   .s-approach { background:#07121c; color:var(--blue);  border:1px solid var(--blue-dim); }
   .s-climb    { background:#1a1200; color:var(--amber); border:1px solid var(--amber-dim); }
   .s-cruise   { background:#111418; color:#4a5060;      border:1px solid #252830; }
   .s-ground   { background:#111418; color:#6a7080;      border:1px solid #252830; }
   .s-enroute  { background:#111418; color:#7a8898;      border:1px solid #3a4450; }
-  .s-imm-dep  { background:#2a0800; color:#ff8060;      border:1px solid #ff4020; animation:blink-d 0.65s infinite; }
-  .s-imm-arr  { background:#2a0800; color:#ff8060;      border:1px solid #ff4020; animation:blink-a 0.65s infinite; }
+  .s-imm-dep  { background:#2a0800; color:#ff8060;      border:1px solid #ff4020; animation:blink-d 1.1s infinite; }
+  .s-imm-arr  { background:#2a0800; color:#ff8060;      border:1px solid #ff4020; animation:blink-a 1.1s infinite; }
   @keyframes blink-d { 0%,100%{opacity:1} 50%{opacity:0.35} }
   @keyframes blink-a { 0%,100%{opacity:1} 50%{opacity:0.3}  }
 
@@ -364,12 +369,15 @@
 
 
   .imm-badge {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  #immBadge {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.9rem; letter-spacing: 8px;
+    font-size: 3rem; letter-spacing: 10px;
     animation: badge-blink 1s infinite;
   }
-  .is-dep .imm-badge { color: var(--amber); }
-  .is-arr .imm-badge { color: var(--blue); }
+  .is-dep #immBadge { color: var(--amber); }
+  .is-arr #immBadge { color: var(--blue); }
   @keyframes badge-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
   .imm-callsign {
@@ -382,8 +390,8 @@
 
   .imm-airline {
     font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(1.1rem, 2.5vw, 1.8rem);
-    letter-spacing: 4px; text-align: center; opacity: 0.55;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    letter-spacing: 4px; text-align: center; opacity: 0.7;
     text-transform: uppercase; margin-bottom: 4px;
   }
 
@@ -399,10 +407,12 @@
     font-family: 'Share Tech Mono', monospace;
     font-size: 1.1rem; letter-spacing: 2px;
     text-align: center; line-height: 1;
-    display: flex; gap: 32px; align-items: flex-start; justify-content: center;
+    display: flex; gap: 52px; align-items: flex-start; justify-content: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 28px; margin-top: 4px;
   }
-  .imm-stat { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .imm-stat-label { font-size: 0.75rem; letter-spacing: 3px; opacity: 0.65; text-transform: uppercase; }
+  .imm-stat { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .imm-stat-label { font-size: 0.95rem; letter-spacing: 3px; opacity: 0.65; text-transform: uppercase; }
   .imm-stat-value { font-size: 1.9rem; letter-spacing: 2px; }
   .is-dep .imm-stat-value { color: var(--amber); }
   .is-arr .imm-stat-value { color: var(--blue); }
@@ -411,12 +421,39 @@
   .imm-stat-value.alt-level   { color: #888 !important; }
 
   .imm-dismiss {
-    font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 3px;
-    color: var(--muted); border: 1px solid #252525; background: transparent;
-    padding: 8px 24px; cursor: pointer; text-transform: uppercase; margin-top: 8px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 3px;
+    color: #888; border: 1px solid #444; background: transparent;
+    padding: 12px 40px; cursor: pointer; text-transform: uppercase; margin-top: 8px;
   }
-  .imm-dismiss:hover { color: var(--text); border-color: #555; }
-  .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; }
+  .imm-dismiss:hover { color: var(--text); border-color: #888; }
+  .imm-ring-wrap {
+    position: relative; width: 110px; height: 110px;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 12px;
+  }
+  .imm-ring-svg {
+    position: absolute; inset: 0;
+    transform: rotate(-90deg);
+  }
+  .imm-ring-bg {
+    fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 5;
+  }
+  .imm-ring-fg {
+    fill: none; stroke-width: 5; stroke-linecap: round;
+    stroke-dasharray: 251; stroke-dashoffset: 0;
+    transition: stroke-dashoffset linear;
+  }
+  .is-dep .imm-ring-fg { stroke: var(--amber); filter: drop-shadow(0 0 6px var(--amber)); }
+  .is-arr .imm-ring-fg { stroke: var(--blue);  filter: drop-shadow(0 0 6px var(--blue)); }
+  .imm-ring-icon {
+    position: relative; z-index: 1;
+    font-size: 2.4rem; line-height: 1;
+    animation: ring-icon-pulse 1.5s ease-in-out infinite;
+  }
+  .is-dep .imm-ring-icon { color: var(--amber); display: block; transform: rotate(-45deg); }
+  .is-arr .imm-ring-icon { color: var(--blue);  display: block; transform: rotate(45deg);  }
+  @keyframes ring-icon-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; margin-top: 10px; }
 
   /* ─── OVERHEAD ROW HIGHLIGHT ─── */
   .flight-row.overhead { border-left: 5px solid var(--pink); }
@@ -592,7 +629,16 @@
 
 <!-- IMMINENT OVERLAY -->
 <div class="imm-overlay" id="immOverlay">
-  <div class="imm-badge"    id="immBadge">NOW DEPARTING</div>
+  <div class="imm-badge">
+    <div id="immBadge"></div>
+    <div class="imm-ring-wrap">
+      <svg class="imm-ring-svg" viewBox="0 0 100 100" width="110" height="110">
+        <circle class="imm-ring-bg" cx="50" cy="50" r="40"/>
+        <circle class="imm-ring-fg" id="immRingFg" cx="50" cy="50" r="40"/>
+      </svg>
+      <span class="imm-ring-icon" id="immRingIcon">✈</span>
+    </div>
+  </div>
   <div class="imm-callsign" id="immCallsign">UAL456</div>
   <div class="imm-airline"  id="immAirline">United Airlines</div>
   <div class="imm-dest"     id="immDest">→ Los Angeles · LAX</div>
@@ -604,7 +650,7 @@
     <div class="imm-stat"><div class="imm-stat-label">HEADING</div><div class="imm-stat-value" id="immDir">—</div></div>
   </div>
   <button class="imm-dismiss" id="dismissBtn">DISMISS · ESC</button>
-  <div class="imm-auto" id="immAuto">AUTO-DISMISS IN 15s</div>
+  <div class="imm-auto" id="immAuto"></div>
 </div>
 
 <!-- HEADER -->
@@ -694,7 +740,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.6.7';
+const VERSION = '1.6.8';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -1134,9 +1180,10 @@ function logDeparture(f) {
 
 // Build the departure display list: live flight object when in range,
 // ghost stub (lat/lon/alt/speed null) when the plane has flown out.
+// Live flights first (sorted closest to KBOS), ghosts after.
 function buildDepRows() {
   const liveMap = new Map(allFlights.map(f => [f.callsign, f]));
-  return departedLog.slice(0, 5).map(entry => {
+  const rows = departedLog.slice(0, 5).map(entry => {
     const live = liveMap.get(entry.callsign);
     return (live && (isDep(live) || isImmDep(live))) ? live : {
       callsign: entry.callsign,
@@ -1145,12 +1192,19 @@ function buildDepRows() {
       heading: null, vertRate: 0, icao: '------',
     };
   });
+  const live   = rows.filter(f => f.lat != null).sort((a, b) => dist(a) - dist(b));
+  const ghosts = rows.filter(f => f.lat == null);
+  return [...live, ...ghosts];
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────
 function renderBoards(){
   const liveDeps = allFlights.filter(f=>isDep(f)&&isLikelyCommercial(f));
-  const arrs     = allFlights.filter(f=>isArr(f)&&isLikelyCommercial(f)).sort((a,b)=>dist(a)-dist(b));
+  const arrs     = allFlights.filter(f=>isArr(f)&&isLikelyCommercial(f)).sort((a,b)=>{
+    const phase = t => t === 'approach' ? 0 : 1; // approach/descending before enroute
+    const pd = phase(classify(a)) - phase(classify(b));
+    return pd !== 0 ? pd : dist(a) - dist(b);
+  });
 
   // isImmDep flights are unambiguously BOS departures — log them immediately,
   // before route data arrives, so they're never missed.
@@ -1177,7 +1231,7 @@ function renderList(id, flights, isDeparture){
     el.innerHTML=`<div class="empty-state"><div class="empty-icon">${isDeparture?'↑':'↓'}</div><div>NO ${isDeparture?'DEPARTURES':'ARRIVALS'} DETECTED</div><div style="margin-top:8px;font-size:0.6rem;opacity:0.4">MONITORING KBOS AIRSPACE</div></div>`;
     return;
   }
-  el.innerHTML=flights.slice(0,5).map(f=>{
+  el.innerHTML=flights.slice(0,20).map((f, rowIdx)=>{
     const ghost = f.lat == null;  // flight has left ADS-B range
     const t = f._depTime || displayTime(f, isDeparture);
     const r = routeCache[f.callsign];
@@ -1191,19 +1245,20 @@ function renderList(id, flights, isDeparture){
     const imm = isDeparture ? isImmDep(f) : isImmArr(f);
     const bearing = bearingToFlight(f);
     const isOverhead = bearing != null && Math.abs(bearing - OVERHEAD_BEARING) < 15;
-    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : (isOverhead ? 'flight-row overhead' : (ghost ? 'flight-row ghost' : 'flight-row'));
+    const isBoarding = !ghost && !imm && classify(f) === 'ground';
+    const rc = imm ? (isDeparture ? 'flight-row imm-dep' : 'flight-row imm-arr') : (isOverhead ? 'flight-row overhead' : (ghost ? 'flight-row ghost' : (isBoarding ? 'flight-row boarding' : 'flight-row')));
     const vr = f.vertRate || 0;
-    const altCls = vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
+    const altCls = (!isDeparture && vr > 200) ? 'alt-level' : vr > 200 ? 'alt-climb' : vr < -200 ? 'alt-descend' : 'alt-level';
     const distMi = ghost ? null : dist(f) * 0.621371;
     const [pillLabel, pillCls] = ghost ? ['DEPARTED', 's-departed'] : pill(f, isDeparture);
-    return `<div class="${rc}">
+    return `<div class="${rc}" style="animation-delay:${rowIdx * 55}ms">
       <span class="cell cell-time">${t}</span>
       <span class="cell"><span class="cell-flight">${cs}</span><span class="status-pill ${pillCls}">${pillLabel}</span></span>
       <span class="cell cell-dest"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia ? `<span class="cell-dest-iata">${ia}</span>` : ''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${acftLabel}</span></span>
       <span class="cell cell-alt ${altCls}">${f.alt != null ? f.alt.toLocaleString() + 'ft' : '——'}</span>
-      <span class="cell cell-dist">${distMi != null ? distMi.toFixed(1) + 'mi' : '——'}</span>
-      <span class="cell cell-dir">${f.heading != null ? lookDir(f.heading).card : '——'}</span>
+      <span class="cell cell-dist" style="display:flex;flex-direction:column;justify-content:center;gap:2px;">${distMi != null ? `<span>${distMi.toFixed(1)}mi</span>` : '<span>——</span>'}${(!isDeparture && !ghost && classify(f) === 'enroute' && f.speed > 0) ? `<span style="font-size:0.8rem;opacity:0.6">${Math.round(dist(f)/(f.speed*1.852/60))}m</span>` : ''}</span>
+      <span class="cell cell-dir" style="display:flex;flex-direction:column;justify-content:center;gap:2px;"><span>${f.heading != null ? lookDir(f.heading).card : '——'}</span>${(!isDeparture && !ghost && classify(f) === 'enroute' && f.speed > 0) ? `<span style="font-size:0.8rem;opacity:0;">&nbsp;</span>` : ''}</span>
     </div>`;
   }).join('');
 }
@@ -1266,7 +1321,7 @@ function showNextAlert() {
   const queuedMore = alertQueue.filter(e => !dismissed.has(e.f.callsign)).length;
 
   const airlineName = routeCache[f.callsign]?.airlineName || al?.name || '';
-  document.getElementById('immBadge').textContent    = isDeparture ? '✈  NOW DEPARTING' : '✈  NOW LANDING';
+  document.getElementById('immBadge').textContent    = isDeparture ? 'NOW DEPARTING' : 'NOW LANDING';
   document.getElementById('immCallsign').textContent = routeCache[f.callsign]?.iataCs || f.callsign;
   document.getElementById('immAirline').textContent  = airlineName;
   document.getElementById('immDest').textContent     = dst;
@@ -1292,11 +1347,20 @@ function showNextAlert() {
 
   // Countdown — 18s departures, 6s arrivals
   autoCountdown = isDeparture ? 18 : 6;
-  document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s`;
   clearInterval(autoInterval);
+
+  // Ring countdown — drain stroke-dashoffset from 0 → 251 over countdown duration
+  const ring = document.getElementById('immRingFg');
+  const circ = 2 * Math.PI * 40; // 251.3
+  ring.style.transition = 'none';
+  ring.style.strokeDashoffset = '0';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    ring.style.transition = `stroke-dashoffset ${autoCountdown}s linear`;
+    ring.style.strokeDashoffset = circ.toString();
+  }));
+
   autoInterval = setInterval(() => {
     autoCountdown--;
-    document.getElementById('immAuto').textContent = `AUTO-DISMISS IN ${autoCountdown}s`;
     if (autoCountdown <= 0) { clearInterval(autoInterval); dismissAlert(f.callsign); }
   }, 1000);
 }
@@ -1304,6 +1368,9 @@ function showNextAlert() {
 function dismissAlert(cs) {
   alertActive = false;
   clearInterval(autoInterval);
+  const ring = document.getElementById('immRingFg');
+  ring.style.transition = 'none';
+  ring.style.strokeDashoffset = '0';
   document.getElementById('immOverlay').className = 'imm-overlay';
   const toAdd = cs || currentAlertCallsign;
   if (toAdd) { dismissed.add(toAdd); sessionStorage.setItem('bos_dismissed', JSON.stringify([...dismissed])); }

@@ -245,6 +245,9 @@
     flex-shrink: 0;
   }
   .col-headers span { text-align: left; }
+  .col-headers span:nth-child(5),
+  .col-headers span:nth-child(6),
+  .col-headers span:nth-child(7) { text-align: center; }  /* ALT DIST DIR */
   .flight-list { flex: 1; min-height: 0; overflow: hidden; perspective: 600px; }
   .flight-row {
     display: grid;
@@ -294,7 +297,7 @@
   .arr .cell-acft-sub  { color: #235060;      font-size: 0.8rem; display: block; margin-top: 2px; }
 
   /* ALT — 106px col, "42,000ft" 8ch @ 1.05rem(21px) = 101px */
-  .cell-alt { font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
+  .cell-alt { font-size: 1.05rem; white-space: nowrap; opacity: 0.7; text-align: center; }
   .cell-alt.alt-climb   { color: var(--green); opacity: 1; }
   .cell-alt.alt-level   { color: #b0b0b0; }
   .cell-alt.alt-descend { color: #ff6060; opacity: 1; }
@@ -302,10 +305,12 @@
   /* DIST — 80px col, "62.0mi" 6ch @ 1.05rem(21px) = 76px */
   .dep .cell-dist { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
   .arr .cell-dist { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
+  .cell-dist { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; }
 
   /* DIR — 44px col, "NNW" 3ch @ 1.05rem(21px) = 38px */
   .dep .cell-dir { color: var(--amber-dim); font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
   .arr .cell-dir { color: var(--blue-dim);  font-size: 1.05rem; white-space: nowrap; opacity: 0.7; }
+  .cell-dir { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; }
 
   /* Airline country badge — replaces emoji flags */
   .cell-airline-flag {
@@ -487,12 +492,27 @@
   .is-arr .imm-ring-icon { color: var(--blue);  display: block; transform: rotate(45deg);  }
   @keyframes ring-icon-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .imm-visible {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 1.05rem; letter-spacing: 3px; text-align: center;
-    margin-top: 6px; min-height: 1.2em;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    margin-top: 6px; min-height: 1.4em;
   }
-  .imm-visible-yes { color: var(--pink); }
-  .imm-visible-bearing { color: var(--muted); }
+  .imm-visible-bearing {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.05rem; letter-spacing: 3px; color: var(--muted);
+  }
+  .imm-binos {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--pink);
+  }
+  .imm-binos svg { width: 44px; height: 28px; }
+  @keyframes binos-pulse {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px var(--pink)); }
+    50%       { opacity: 0.55; filter: drop-shadow(0 0 2px var(--pink)); }
+  }
+  .imm-binos svg { animation: binos-pulse 1.4s ease-in-out infinite; }
+  .imm-binos-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem; letter-spacing: 3px; color: var(--pink);
+  }
   .imm-auto { font-size: 0.55rem; color: #333; letter-spacing: 2px; margin-top: 10px; }
 
   /* ─── EXPANDED ALERT ROW (phase 2) ─── */
@@ -839,7 +859,7 @@
 
 <script>
 // ─── FIXED AIRPORT ────────────────────────────────────────────────
-const VERSION = '1.7.0';
+const VERSION = '1.7.2';
 
 document.title = `Boston Logan — Flight Board v${VERSION}`;
 document.getElementById('versionBadge').textContent = `v${VERSION}`;
@@ -1405,8 +1425,8 @@ function renderList(id, flights, isDeparture){
       <span class="cell cell-dest"><span class="cell-dest-city">${c.toUpperCase()}</span>${ia ? `<span class="cell-dest-iata">${ia}</span>` : ''}<span class="cell-airline-name">${alName}</span></span>
       <span class="cell"><span class="cell-acft-type">${acftLabel}</span></span>
       <span class="cell cell-alt ${altCls}">${f.alt != null ? f.alt.toLocaleString() + 'ft' : '——'}</span>
-      <span class="cell cell-dist" style="display:flex;flex-direction:column;justify-content:center;gap:2px;">${distMi != null ? `<span>${distMi.toFixed(1)}mi</span>` : '<span>——</span>'}${(!isDeparture && !ghost && classify(f) === 'enroute' && f.speed > 0) ? `<span style="font-size:0.8rem;opacity:0.6">${Math.round(dist(f)/(f.speed*1.852/60))}m</span>` : ''}</span>
-      <span class="cell cell-dir" style="display:flex;flex-direction:column;justify-content:center;gap:2px;"><span>${f.heading != null ? lookDir(f.heading).card : '——'}</span>${(!isDeparture && !ghost && classify(f) === 'enroute' && f.speed > 0) ? `<span style="font-size:0.8rem;opacity:0;">&nbsp;</span>` : ''}</span>
+      <span class="cell cell-dist">${distMi != null ? `<span>${distMi.toFixed(1)}mi</span>` : '<span>——</span>'}${(!isDeparture && !ghost && classify(f) === 'enroute' && f.speed > 0) ? `<span style="font-size:0.8rem;opacity:0.6">${Math.round(dist(f)/(f.speed*1.852/60))}m</span>` : ''}</span>
+      <span class="cell cell-dir"><span>${f.heading != null ? lookDir(f.heading).card : '——'}</span>${(!isDeparture && !ghost && classify(f) === 'enroute' && f.speed > 0) ? `<span style="font-size:0.8rem;opacity:0;">&nbsp;</span>` : ''}</span>
     </div>`;
   }).join('');
 }
@@ -1500,10 +1520,17 @@ function showNextAlert() {
   const isVisible  = bearing != null && bearing >= VIS_MIN && bearing <= VIS_MAX;
   const bearingStr = bearing != null ? `BEARING ${Math.round(bearing)}° ${lookDir(bearing).card}` : '';
   const visEl      = document.getElementById('immVisible');
+  const binosSVG = `<svg viewBox="0 0 44 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="10" cy="18" r="8" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="34" cy="18" r="8" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="10" cy="18" r="3.5" fill="currentColor" opacity="0.35"/>
+    <circle cx="34" cy="18" r="3.5" fill="currentColor" opacity="0.35"/>
+    <path d="M18 16 L26 16 L26 12 L22 8 L18 12 Z" fill="currentColor"/>
+  </svg>`;
   if (isVisible) {
-    visEl.innerHTML = `<span class="imm-visible-yes">VISIBLE FROM WINDOW</span>&ensp;<span class="imm-visible-bearing">${bearingStr}</span>`;
+    visEl.innerHTML = `<div class="imm-binos">${binosSVG}<span class="imm-binos-label">VISIBLE</span></div>${bearingStr ? `<span class="imm-visible-bearing">${bearingStr}</span>` : ''}`;
   } else {
-    visEl.innerHTML = `<span class="imm-visible-bearing">${bearingStr}</span>`;
+    visEl.innerHTML = bearingStr ? `<span class="imm-visible-bearing">${bearingStr}</span>` : '';
   }
 
   if (queuedMore > 0) {

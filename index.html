@@ -1067,15 +1067,24 @@ async function fetchFlights() {
   const directUrl = `https://api.adsb.lol/v2/lat/${lat}/lon/${lon}/dist/${NM}`;
 
   try {
-    // Try direct first; fall back to CORS proxy if blocked (e.g. file:// origin)
-    let res;
-    try {
-      res = await fetch(directUrl);
-      if (!res.ok) throw new Error(res.status);
-    } catch(e1) {
-      res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(directUrl)}`);
+    // Try direct first; fall back through a chain of CORS proxies if blocked (e.g. file:// origin)
+    let res, lastErr;
+    const attempts = [
+      () => fetch(directUrl),
+      () => fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(directUrl)}`),
+      () => fetch(`https://corsproxy.io/?url=${encodeURIComponent(directUrl)}`),
+      () => fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`),
+    ];
+    for (const attempt of attempts) {
+      try {
+        res = await attempt();
+        if (res.ok) { lastErr = null; break; }
+        lastErr = new Error(res.status);
+      } catch(e) {
+        lastErr = e;
+      }
     }
-    if(!res.ok) throw new Error(res.status);
+    if (lastErr) throw lastErr;
     const data=await res.json();
     allFlights=(data.ac||[]).map(parseState).filter(f=>f.lat!=null&&f.lon!=null);
     isDemo = false;
